@@ -1,0 +1,60 @@
+plugins {
+	id 'org.springframework.boot' version '3.5.14'
+	id 'io.spring.dependency-management' version '1.1.7'
+	id 'java'
+	id 'jacoco'
+}
+
+group = 'com.pragma.jamarlesf'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '21'
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+ext {
+	springBootVersion = "3.5.14"
+	mapstructVersion = "1.6.3"
+	lombokVersion = "1.18.36"
+	lombokMapstructBindingVersion = "0.2.0"
+	mySqlConnectorVersion = "9.1.0"
+	openApiVersion = "2.8.16"
+}
+
+dependencies {
+	implementation "org.springframework.boot:spring-boot-starter-data-jpa:${springBootVersion}"
+	implementation "org.springframework.boot:spring-boot-starter-validation:${springBootVersion}"
+	implementation "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
+	developmentOnly "org.springframework.boot:spring-boot-devtools:${springBootVersion}"
+	testImplementation "org.springframework.boot:spring-boot-starter-test:${springBootVersion}"
+
+	runtimeOnly "com.mysql:mysql-connector-j:${mySqlConnectorVersion}"
+
+	implementation "org.mapstruct:mapstruct:${mapstructVersion}"
+	compileOnly "org.projectlombok:lombok:${lombokVersion}"
+	annotationProcessor "org.projectlombok:lombok-mapstruct-binding:${lombokMapstructBindingVersion}"
+	annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
+	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+	implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${openApiVersion}"
+
+	testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+test {
+	finalizedBy jacocoTestReport
+	jvmArgs '-XX:+EnableDynamicAgentLoading'
+}

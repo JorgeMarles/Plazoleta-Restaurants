@@ -21,7 +21,7 @@ repositories {
 
 ext {
 	springBootVersion = "3.5.14"
-	springCloudVersion = "2024.0.1"
+	springCloudVersion = "2025.0.1"
 	mapstructVersion = "1.6.3"
 	lombokVersion = "1.18.36"
 	lombokMapstructBindingVersion = "0.2.0"

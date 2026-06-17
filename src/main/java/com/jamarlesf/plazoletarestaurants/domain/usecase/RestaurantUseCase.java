@@ -16,17 +16,17 @@ public class RestaurantUseCase implements IRestaurantServicePort {
     private final IUserExternalPort userExternalPort;
 
     @Override
-    public void saveRestaurant(Restaurant restaurant) {
+    public void save(Restaurant restaurant) {
         validateRestaurantFields(restaurant);
         if(!userExternalPort.isOwner(restaurant.getOwnerId())) {
             throw new DomainException("El usuario especificado no es un propietario");
         }
-        restaurantPersistencePort.saveRestaurant(restaurant);
+        restaurantPersistencePort.save(restaurant);
     }
 
     @Override
-    public List<Restaurant> getRestaurants() {
-        return restaurantPersistencePort.getRestaurants();
+    public List<Restaurant> findAll() {
+        return restaurantPersistencePort.findAll();
     }
 
     private void validateRestaurantFields(Restaurant restaurant) {

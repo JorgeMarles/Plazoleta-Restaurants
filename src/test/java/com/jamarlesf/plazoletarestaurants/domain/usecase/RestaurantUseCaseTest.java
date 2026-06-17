@@ -63,7 +63,7 @@ class RestaurantUseCaseTest {
             "Restaurant ABC, Address 1234, 1, +123456789012, https://image.com, 372638363"
     })
     void save_whenValidRestaurant_ShouldSaveSuccesfully(String name, String address, Long ownerId, String phone, String logoUrl, String nit) {
-        doNothing().when(restaurantPersistencePort).saveRestaurant(any());
+        doNothing().when(restaurantPersistencePort).save(any());
         when(userExternalPort.isOwner(1L)).thenReturn(true);
 
         restaurant.setName(name);
@@ -73,9 +73,9 @@ class RestaurantUseCaseTest {
         restaurant.setLogoUrl(logoUrl);
         restaurant.setNit(nit);
 
-        assertDoesNotThrow(() -> restaurantUseCase.saveRestaurant(restaurant));
+        assertDoesNotThrow(() -> restaurantUseCase.save(restaurant));
 
-        verify(restaurantPersistencePort).saveRestaurant(any(Restaurant.class));
+        verify(restaurantPersistencePort).save(any(Restaurant.class));
         verify(userExternalPort).isOwner(1L);
     }
 
@@ -86,12 +86,12 @@ class RestaurantUseCaseTest {
             "1",
             "1 1"
     })
-    void save_whenInvalidName_ShouldThrowException(String name) {
+    void save_Restaurant_whenInvalidName_ShouldThrowException(String name) {
         restaurant.setName(name);
 
-        assertThrows(DomainException.class, () -> restaurantUseCase.saveRestaurant(restaurant));
+        assertThrows(DomainException.class, () -> restaurantUseCase.save(restaurant));
 
-        verify(restaurantPersistencePort, times(0)).saveRestaurant(any(Restaurant.class));
+        verify(restaurantPersistencePort, times(0)).save(any(Restaurant.class));
         verify(userExternalPort, times(0)).isOwner(1L);
     }
 
@@ -110,9 +110,9 @@ class RestaurantUseCaseTest {
     void save_whenInvalidPhone_ShouldThrowException(String phone) {
         restaurant.setPhone(phone);
 
-        assertThrows(DomainException.class, () -> restaurantUseCase.saveRestaurant(restaurant));
+        assertThrows(DomainException.class, () -> restaurantUseCase.save(restaurant));
 
-        verify(restaurantPersistencePort, times(0)).saveRestaurant(any(Restaurant.class));
+        verify(restaurantPersistencePort, times(0)).save(any(Restaurant.class));
         verify(userExternalPort, times(0)).isOwner(1L);
     }
 
@@ -122,12 +122,12 @@ class RestaurantUseCaseTest {
             "acb123",
             "abc"
     })
-    void save_whenInvalidNit_ShouldThrowException(String nit) {
+    void save_Restaurant_whenInvalidNit_ShouldThrowException(String nit) {
         restaurant.setNit(nit);
 
-        assertThrows(DomainException.class, () -> restaurantUseCase.saveRestaurant(restaurant));
+        assertThrows(DomainException.class, () -> restaurantUseCase.save(restaurant));
 
-        verify(restaurantPersistencePort, times(0)).saveRestaurant(any(Restaurant.class));
+        verify(restaurantPersistencePort, times(0)).save(any(Restaurant.class));
         verify(userExternalPort, times(0)).isOwner(1L);
     }
 
@@ -138,36 +138,36 @@ class RestaurantUseCaseTest {
         when(userExternalPort.isOwner(anyLong())).thenReturn(false);
         restaurant.setOwnerId(ownerId);
 
-        DomainException exception = assertThrows(DomainException.class, () -> restaurantUseCase.saveRestaurant(restaurant));
+        DomainException exception = assertThrows(DomainException.class, () -> restaurantUseCase.save(restaurant));
         assertTrue(exception.getMessage().contains("propietario"));
 
-        verify(restaurantPersistencePort, times(0)).saveRestaurant(any(Restaurant.class));
+        verify(restaurantPersistencePort, times(0)).save(any(Restaurant.class));
         verify(userExternalPort, times(1)).isOwner(anyLong());
     }
 
     @Test
-    void getRestaurants_whenRestaurantsExist_ShouldReturnRestaurantList() {
+    void findAllExist_ShouldReturnRestaurantList() {
         List<Restaurant> expectedRestaurants = List.of(
                 new Restaurant(1L, "Restaurant 1", "Address 1", 10L, "+573111111111", "https://logo-1.com", "123456789"),
                 new Restaurant(2L, "Restaurant 2", "Address 2", 20L, "+573222222222", "https://logo-2.com", "987654321")
         );
 
-        when(restaurantPersistencePort.getRestaurants()).thenReturn(expectedRestaurants);
+        when(restaurantPersistencePort.findAll()).thenReturn(expectedRestaurants);
 
-        List<Restaurant> actualRestaurants = restaurantUseCase.getRestaurants();
+        List<Restaurant> actualRestaurants = restaurantUseCase.findAll();
 
         assertSame(expectedRestaurants, actualRestaurants);
-        verify(restaurantPersistencePort, times(1)).getRestaurants();
+        verify(restaurantPersistencePort, times(1)).findAll();
     }
 
     @Test
-    void getRestaurants_whenNoRestaurantsExist_ShouldReturnEmptyList() {
-        when(restaurantPersistencePort.getRestaurants()).thenReturn(List.of());
+    void findAllExist_ShouldReturnEmptyList() {
+        when(restaurantPersistencePort.findAll()).thenReturn(List.of());
 
-        List<Restaurant> actualRestaurants = restaurantUseCase.getRestaurants();
+        List<Restaurant> actualRestaurants = restaurantUseCase.findAll();
 
         assertTrue(actualRestaurants.isEmpty());
-        verify(restaurantPersistencePort, times(1)).getRestaurants();
+        verify(restaurantPersistencePort, times(1)).findAll();
     }
 
 

@@ -5,6 +5,6 @@ import com.jamarlesf.plazoletarestaurants.domain.model.Restaurant;
 import java.util.List;
 
 public interface IRestaurantServicePort {
-    void saveRestaurant(Restaurant restaurant);
-    List<Restaurant> getRestaurants();
+    void save(Restaurant restaurant);
+    List<Restaurant> findAll();
 }

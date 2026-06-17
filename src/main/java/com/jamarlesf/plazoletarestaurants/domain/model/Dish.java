@@ -1,0 +1,22 @@
+package com.jamarlesf.plazoletarestaurants.domain.model;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class Dish {
+    private Long id;
+    private String name;
+    private String description;
+    private Integer price;
+    private String imageUrl;
+    private Boolean active;
+
+    private Category category;
+    private Restaurant restaurant;
+}

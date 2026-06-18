@@ -22,6 +22,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
@@ -92,6 +93,7 @@ class DishUseCaseTest {
         verify(dishPersistencePort).save(any(Dish.class));
         verify(categoryPersistencePort).findById(dish.getCategory().getId());
         verify(restaurantPersistencePort).findById(dish.getRestaurant().getId());
+        assertTrue(dish.getActive());
     }
 
     @Test

@@ -43,6 +43,7 @@ public class DishUseCase implements IDishServicePort {
                 .orElseThrow(() -> new DomainException("La categoria especificada no existe"));
         dish.setCategory(category);
 
+        dish.setActive(true);
         dishPersistencePort.save(dish);
     }
 

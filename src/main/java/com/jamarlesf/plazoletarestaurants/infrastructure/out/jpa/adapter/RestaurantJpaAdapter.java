@@ -8,6 +8,7 @@ import com.jamarlesf.plazoletarestaurants.infrastructure.out.jpa.repository.IRes
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 public class RestaurantJpaAdapter implements IRestaurantPersistencePort {
@@ -24,5 +25,11 @@ public class RestaurantJpaAdapter implements IRestaurantPersistencePort {
     @Override
     public List<Restaurant> findAll() {
         return restaurantEntityMapper.toRestaurantList(restaurantRepository.findAll());
+    }
+
+    @Override
+    public Optional<Restaurant> findById(Long id) {
+        Optional<RestaurantEntity> restaurantEntity = restaurantRepository.findById(id);
+        return restaurantEntity.map(restaurantEntityMapper::toRestaurant);
     }
 }

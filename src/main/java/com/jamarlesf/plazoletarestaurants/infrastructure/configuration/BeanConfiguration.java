@@ -1,11 +1,21 @@
 package com.jamarlesf.plazoletarestaurants.infrastructure.configuration;
 
+import com.jamarlesf.plazoletarestaurants.domain.api.IDishServicePort;
 import com.jamarlesf.plazoletarestaurants.domain.api.IRestaurantServicePort;
+import com.jamarlesf.plazoletarestaurants.domain.spi.ICategoryPersistencePort;
+import com.jamarlesf.plazoletarestaurants.domain.spi.IDishPersistencePort;
 import com.jamarlesf.plazoletarestaurants.domain.spi.IRestaurantPersistencePort;
 import com.jamarlesf.plazoletarestaurants.domain.spi.IUserExternalPort;
+import com.jamarlesf.plazoletarestaurants.domain.usecase.DishUseCase;
 import com.jamarlesf.plazoletarestaurants.domain.usecase.RestaurantUseCase;
+import com.jamarlesf.plazoletarestaurants.infrastructure.out.jpa.adapter.CategoryJpaAdapter;
+import com.jamarlesf.plazoletarestaurants.infrastructure.out.jpa.adapter.DishJpaAdapter;
 import com.jamarlesf.plazoletarestaurants.infrastructure.out.jpa.adapter.RestaurantJpaAdapter;
+import com.jamarlesf.plazoletarestaurants.infrastructure.out.jpa.mapper.ICategoryEntityMapper;
+import com.jamarlesf.plazoletarestaurants.infrastructure.out.jpa.mapper.IDishEntityMapper;
 import com.jamarlesf.plazoletarestaurants.infrastructure.out.jpa.mapper.IRestaurantEntityMapper;
+import com.jamarlesf.plazoletarestaurants.infrastructure.out.jpa.repository.ICategoryRepository;
+import com.jamarlesf.plazoletarestaurants.infrastructure.out.jpa.repository.IDishRepository;
 import com.jamarlesf.plazoletarestaurants.infrastructure.out.jpa.repository.IRestaurantRepository;
 import com.jamarlesf.plazoletarestaurants.infrastructure.out.rest.adapter.UserExternalAdapter;
 import com.jamarlesf.plazoletarestaurants.infrastructure.out.rest.client.IUserFeignClient;
@@ -21,6 +31,11 @@ public class BeanConfiguration {
     private final IRestaurantEntityMapper restaurantEntityMapper;
     private final IUserFeignClient userFeignClient;
 
+    private final IDishRepository dishRepository;
+    private final IDishEntityMapper dishEntityMapper;
+    private final ICategoryRepository categoryRepository;
+    private final ICategoryEntityMapper categoryEntityMapper;
+
     @Bean
     public IRestaurantPersistencePort restaurantPersistencePort() {
         return new RestaurantJpaAdapter(restaurantRepository, restaurantEntityMapper);
@@ -34,5 +49,20 @@ public class BeanConfiguration {
     @Bean
     public IRestaurantServicePort restaurantServicePort() {
         return new RestaurantUseCase(restaurantPersistencePort(), userExternalPort());
+    }
+
+    @Bean
+    public IDishPersistencePort dishPersistencePort() {
+        return new DishJpaAdapter(dishRepository, dishEntityMapper);
+    }
+
+    @Bean
+    public ICategoryPersistencePort categoryPersistencePort() {
+        return new CategoryJpaAdapter(categoryRepository, categoryEntityMapper);
+    }
+
+    @Bean
+    public IDishServicePort dishServicePort() {
+        return new DishUseCase(dishPersistencePort(), categoryPersistencePort(), restaurantPersistencePort());
     }
 }

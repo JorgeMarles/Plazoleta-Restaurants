@@ -128,4 +128,25 @@ class DishUseCaseTest {
 
         assertThrows(DomainException.class, () -> dishUseCase.save(dish));
     }
+
+    @Test
+    void update_WhenDishNotFound_ShouldThrowDomainException() {
+        assertThrows(DomainException.class, () -> dishUseCase.updateDish(1L, 1, "new Description"));
+
+        verify(dishPersistencePort).findById(1L);
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {
+            -1,
+            0,
+            -2147483648,
+    })
+    void update_WhenPriceIsNotPositive_ShouldThrowDomainException(Integer price) {
+        when(dishPersistencePort.findById(1L)).thenReturn(Optional.of(dish));
+
+        assertThrows(DomainException.class, () -> dishUseCase.updateDish(1L, price, "new Description"));
+
+        verify(dishPersistencePort).findById(1L);
+    }
 }

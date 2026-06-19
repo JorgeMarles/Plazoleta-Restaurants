@@ -8,6 +8,7 @@ import com.jamarlesf.plazoletarestaurants.infrastructure.out.jpa.repository.IDis
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 public class DishJpaAdapter implements IDishPersistencePort {
@@ -24,5 +25,10 @@ public class DishJpaAdapter implements IDishPersistencePort {
     @Override
     public List<Dish> findAll() {
         return dishEntityMapper.toDishList(dishRepository.findAll());
+    }
+
+    @Override
+    public Optional<Dish> findById(Long id) {
+        return dishRepository.findById(id).map(dishEntityMapper::toDish);
     }
 }

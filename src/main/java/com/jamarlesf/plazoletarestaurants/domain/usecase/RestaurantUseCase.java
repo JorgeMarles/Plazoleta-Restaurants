@@ -45,7 +45,7 @@ public class RestaurantUseCase implements IRestaurantServicePort {
         if (!phoneNumber.matches("^\\+?\\d+$")) {
             throw new DomainException("Solo se permiten dígitos y +");
         }
-        if (phoneNumber.replaceAll("\\d", "").length() > 13) {
+        if (phoneNumber.replaceAll("\\D", "").length() > 13) {
             throw new DomainException("El teléfono no puede exceder 13 dígitos");
         }
     }

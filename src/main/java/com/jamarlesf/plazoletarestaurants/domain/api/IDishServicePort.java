@@ -7,4 +7,5 @@ import java.util.List;
 public interface IDishServicePort {
     void save(Dish dish);
     List<Dish> findAll();
+    void updateDish(Long id, Integer price, String description);
 }

@@ -51,4 +51,13 @@ public class DishUseCase implements IDishServicePort {
     public List<Dish> findAll() {
         return dishPersistencePort.findAll();
     }
+
+    @Override
+    public void updateDish(Long id, Integer price, String description) {
+        Dish dish = dishPersistencePort.findById(id).orElseThrow(() -> new DomainException("El plato con id "+id+" no existe"));
+        validatePrice(price);
+        dish.setPrice(price);
+        dish.setDescription(description);
+        dishPersistencePort.save(dish);
+    }
 }

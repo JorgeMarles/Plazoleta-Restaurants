@@ -21,6 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -88,7 +89,7 @@ class DishUseCaseTest {
         dish.setImageUrl(imageUrl);
         dish.setPrice(price);
 
-        assertDoesNotThrow(() -> dishUseCase.save(dish));
+        assertDoesNotThrow(() -> dishUseCase.save(dish, 1L));
 
         verify(dishPersistencePort).save(any(Dish.class));
         verify(categoryPersistencePort).findById(dish.getCategory().getId());
@@ -101,7 +102,7 @@ class DishUseCaseTest {
         Restaurant falseRestaurant = new Restaurant();
         falseRestaurant.setId(2L);
         dish.setRestaurant(falseRestaurant);
-        assertThrows(DomainException.class, () -> dishUseCase.save(dish));
+        assertThrows(DomainException.class, () -> dishUseCase.save(dish, 1L));
         verify(restaurantPersistencePort).findById(2L);
     }
 
@@ -112,7 +113,7 @@ class DishUseCaseTest {
         Category falseCategory = new Category();
         falseCategory.setId(2L);
         dish.setCategory(falseCategory);
-        assertThrows(DomainException.class, () -> dishUseCase.save(dish));
+        assertThrows(DomainException.class, () -> dishUseCase.save(dish, 1L));
         verify(categoryPersistencePort).findById(2L);
         verify(restaurantPersistencePort).findById(1L);
     }
@@ -126,12 +127,12 @@ class DishUseCaseTest {
     void save_WhenPriceIsNotPositive_ShouldThrowDomainException(Integer price) {
         dish.setPrice(price);
 
-        assertThrows(DomainException.class, () -> dishUseCase.save(dish));
+        assertThrows(DomainException.class, () -> dishUseCase.save(dish, 1L));
     }
 
     @Test
     void update_WhenDishNotFound_ShouldThrowDomainException() {
-        assertThrows(DomainException.class, () -> dishUseCase.updateDish(1L, 1, "new Description"));
+        assertThrows(DomainException.class, () -> dishUseCase.updateDish(1L, 1, "new Description", 1L));
 
         verify(dishPersistencePort).findById(1L);
     }
@@ -145,8 +146,30 @@ class DishUseCaseTest {
     void update_WhenPriceIsNotPositive_ShouldThrowDomainException(Integer price) {
         when(dishPersistencePort.findById(1L)).thenReturn(Optional.of(dish));
 
-        assertThrows(DomainException.class, () -> dishUseCase.updateDish(1L, price, "new Description"));
+        assertThrows(DomainException.class, () -> dishUseCase.updateDish(1L, price, "new Description", 1L));
 
+        verify(dishPersistencePort).findById(1L);
+    }
+
+    @Test
+    @DisplayName("save - When user is not the restaurant owner, should throw DomainException")
+    void save_WhenUserIsNotOwner_ShouldThrowDomainException() {
+        when(restaurantPersistencePort.findById(1L)).thenReturn(Optional.of(restaurant));
+
+        DomainException exception = assertThrows(DomainException.class, () -> dishUseCase.save(dish, 2L));
+
+        assertEquals("No eres el propietario de este restaurante", exception.getMessage());
+        verify(restaurantPersistencePort).findById(1L);
+    }
+
+    @Test
+    @DisplayName("update - When user is not the restaurant owner, should throw DomainException")
+    void update_WhenUserIsNotOwner_ShouldThrowDomainException() {
+        when(dishPersistencePort.findById(1L)).thenReturn(Optional.of(dish));
+
+        DomainException exception = assertThrows(DomainException.class, () -> dishUseCase.updateDish(1L, 1000, "new Description", 2L));
+
+        assertEquals("No eres el propietario de este restaurante", exception.getMessage());
         verify(dishPersistencePort).findById(1L);
     }
 }

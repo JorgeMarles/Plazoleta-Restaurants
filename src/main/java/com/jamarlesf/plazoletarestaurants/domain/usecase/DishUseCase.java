@@ -30,12 +30,17 @@ public class DishUseCase implements IDishServicePort {
     }
 
     @Override
-    public void save(Dish dish) {
+    public void save(Dish dish, Long requestUserId) {
         validatePrice(dish.getPrice());
 
         Restaurant restaurant = restaurantPersistencePort
                 .findById(dish.getRestaurant().getId())
                 .orElseThrow(() -> new DomainException("El restaurante especificado no existe"));
+
+        if(!requestUserId.equals(restaurant.getOwnerId())) {
+            throw new DomainException("No eres el propietario de este restaurante");
+        }
+
         dish.setRestaurant(restaurant);
 
         Category category = categoryPersistencePort
@@ -53,8 +58,13 @@ public class DishUseCase implements IDishServicePort {
     }
 
     @Override
-    public void updateDish(Long id, Integer price, String description) {
-        Dish dish = dishPersistencePort.findById(id).orElseThrow(() -> new DomainException("El plato con id "+id+" no existe"));
+    public void updateDish(Long id, Integer price, String description, Long requestUserId) {
+        Dish dish = dishPersistencePort.findById(id).orElseThrow(() -> new DomainException("El plato con id " + id + " no existe"));
+
+        if(!requestUserId.equals(dish.getRestaurant().getOwnerId())) {
+            throw new DomainException("No eres el propietario de este restaurante");
+        }
+
         validatePrice(price);
         dish.setPrice(price);
         dish.setDescription(description);

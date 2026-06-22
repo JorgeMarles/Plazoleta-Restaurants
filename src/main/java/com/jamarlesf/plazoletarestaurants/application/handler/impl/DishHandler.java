@@ -24,9 +24,9 @@ public class DishHandler implements IDishHandler {
     private final IDishResponseMapper dishResponseMapper;
 
     @Override
-    public void saveDish(DishRequestDto dishRequestDto) {
+    public void saveDish(DishRequestDto dishRequestDto, Long userId) {
         Dish dish = dishRequestMapper.toDish(dishRequestDto);
-        dishServicePort.save(dish);
+        dishServicePort.save(dish, userId);
     }
 
     @Override
@@ -35,11 +35,12 @@ public class DishHandler implements IDishHandler {
     }
 
     @Override
-    public void updateDish(UpdateDishRequestDto updateDishRequestDto) {
+    public void updateDish(UpdateDishRequestDto updateDishRequestDto, Long userId) {
         dishServicePort.updateDish(
                 updateDishRequestDto.getId(),
                 updateDishRequestDto.getPrice(),
-                updateDishRequestDto.getDescription()
+                updateDishRequestDto.getDescription(),
+                userId
         );
     }
 }

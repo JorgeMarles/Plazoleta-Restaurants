@@ -7,7 +7,7 @@ import com.jamarlesf.plazoletarestaurants.application.dto.response.DishResponseD
 import java.util.List;
 
 public interface IDishHandler {
-    void saveDish(DishRequestDto dishRequestDto);
+    void saveDish(DishRequestDto dishRequestDto, Long userId);
     List<DishResponseDto> getDishes();
-    void updateDish(UpdateDishRequestDto updateDishRequestDto);
+    void updateDish(UpdateDishRequestDto updateDishRequestDto, Long userId);
 }

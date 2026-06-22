@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -49,6 +50,7 @@ public class RestaurantRestController {
                     )
             )
     })
+    @PreAuthorize("hasAuthority('ADMINISTRADOR')")
     @PostMapping()
     public ResponseEntity<Void> createRestaurant(@RequestBody RestaurantRequestDto restaurant) {
         restaurantHandler.saveRestaurant(restaurant);
@@ -67,6 +69,7 @@ public class RestaurantRestController {
                             mediaType = MediaType.APPLICATION_JSON_VALUE)
             )
     })
+    @PreAuthorize("hasAuthority('ADMINISTRADOR')")
     @GetMapping()
     public ResponseEntity<List<RestaurantResponseDto>> findAllRestaurants() {
         return ResponseEntity.ok(restaurantHandler.getRestaurants());

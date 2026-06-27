@@ -70,4 +70,9 @@ public class DishUseCase implements IDishServicePort {
         dish.setDescription(description);
         dishPersistencePort.save(dish);
     }
+
+    @Override
+    public void updateDishStatus(Long id, Boolean active, Long requestUserId) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }

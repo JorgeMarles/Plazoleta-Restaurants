@@ -70,4 +70,15 @@ public class DishUseCase implements IDishServicePort {
         dish.setDescription(description);
         dishPersistencePort.save(dish);
     }
+
+    @Override
+    public void updateDishStatus(Long id, Boolean active, Long requestUserId) {
+        Dish dish = dishPersistencePort.findById(id).orElseThrow(() -> new DomainException("El plato con id " + id + " no existe"));
+        if(!requestUserId.equals(dish.getRestaurant().getOwnerId())) {
+            throw new DomainException("No eres el propietario de este restaurante");
+        }
+
+        dish.setActive(active);
+        dishPersistencePort.save(dish);
+    }
 }

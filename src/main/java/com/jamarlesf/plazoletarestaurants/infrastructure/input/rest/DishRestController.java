@@ -2,6 +2,7 @@ package com.jamarlesf.plazoletarestaurants.infrastructure.input.rest;
 
 import com.jamarlesf.plazoletarestaurants.application.dto.request.DishRequestDto;
 import com.jamarlesf.plazoletarestaurants.application.dto.request.UpdateDishRequestDto;
+import com.jamarlesf.plazoletarestaurants.application.dto.request.UpdateDishStatusRequestDto;
 import com.jamarlesf.plazoletarestaurants.application.dto.response.DishResponseDto;
 import com.jamarlesf.plazoletarestaurants.application.handler.IDishHandler;
 import io.swagger.v3.oas.annotations.Operation;
@@ -18,6 +19,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -117,6 +119,36 @@ public class DishRestController {
     public ResponseEntity<Void> updateDish(@PathVariable Long id, @RequestBody UpdateDishRequestDto updateDishRequestDto) {
         updateDishRequestDto.setId(id);
         dishHandler.updateDish(updateDishRequestDto, getAuthenticatedUserId());
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(
+            summary = "Update dish status (Enable/Disable)",
+            description = "Enables or disables a dish status (active/inactive)"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Dish status updated successfully"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Dish not found",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            examples = @ExampleObject(
+                                     value = "{\"message\": \"El plato con id X no existe\"}"
+                            )
+                    )
+            )
+    })
+    @PatchMapping("{id}/status")
+    @PreAuthorize("hasAuthority('PROPIETARIO')")
+    public ResponseEntity<Void> updateDishStatus(
+            @PathVariable Long id,
+            @RequestBody UpdateDishStatusRequestDto updateDishStatusRequestDto
+    ) {
+        dishHandler.updateDishStatus(id, updateDishStatusRequestDto, getAuthenticatedUserId());
         return ResponseEntity.ok().build();
     }
 }

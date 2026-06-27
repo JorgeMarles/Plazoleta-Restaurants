@@ -2,6 +2,7 @@ package com.jamarlesf.plazoletarestaurants.application.handler.impl;
 
 import com.jamarlesf.plazoletarestaurants.application.dto.request.DishRequestDto;
 import com.jamarlesf.plazoletarestaurants.application.dto.request.UpdateDishRequestDto;
+import com.jamarlesf.plazoletarestaurants.application.dto.request.UpdateDishStatusRequestDto;
 import com.jamarlesf.plazoletarestaurants.application.dto.response.DishResponseDto;
 import com.jamarlesf.plazoletarestaurants.application.handler.IDishHandler;
 import com.jamarlesf.plazoletarestaurants.application.mapper.IDishRequestMapper;
@@ -40,6 +41,15 @@ public class DishHandler implements IDishHandler {
                 updateDishRequestDto.getId(),
                 updateDishRequestDto.getPrice(),
                 updateDishRequestDto.getDescription(),
+                userId
+        );
+    }
+
+    @Override
+    public void updateDishStatus(Long id, UpdateDishStatusRequestDto updateDishStatusRequestDto, Long userId) {
+        dishServicePort.updateDishStatus(
+                id,
+                updateDishStatusRequestDto.getActive(),
                 userId
         );
     }

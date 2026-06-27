@@ -172,4 +172,26 @@ class DishUseCaseTest {
         assertEquals("No eres el propietario de este restaurante", exception.getMessage());
         verify(dishPersistencePort).findById(1L);
     }
+
+    @Test
+    @DisplayName("update status - When user is the restaurant owner, should update status")
+    void updateStatus_WhenUserNotOwner_ShouldUpdateStatus() {
+        when(dishPersistencePort.findById(1L)).thenReturn(Optional.of(dish));
+
+        dishUseCase.updateDishStatus(1L, false, 1L);
+
+        verify(dishPersistencePort).save(any(Dish.class));
+        verify(dishPersistencePort).findById(1L);
+    }
+
+    @Test
+    @DisplayName("update status - When user is not the restaurant owner, should throw DomainException")
+    void updateStatus_WhenUserIsNotOwner_ShouldThrowDomainexception() {
+        when(dishPersistencePort.findById(1L)).thenReturn(Optional.of(dish));
+
+        DomainException exception = assertThrows(DomainException.class, () -> dishUseCase.updateDishStatus(1L, false, 2L));
+
+        assertEquals("No eres el propietario de este restaurante", exception.getMessage());
+        verify(dishPersistencePort).findById(1L);
+    }
 }

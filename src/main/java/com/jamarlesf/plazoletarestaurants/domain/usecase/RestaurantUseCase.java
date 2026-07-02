@@ -2,7 +2,10 @@ package com.jamarlesf.plazoletarestaurants.domain.usecase;
 
 import com.jamarlesf.plazoletarestaurants.domain.api.IRestaurantServicePort;
 import com.jamarlesf.plazoletarestaurants.domain.exception.DomainException;
+import com.jamarlesf.plazoletarestaurants.domain.model.PageModel;
+import com.jamarlesf.plazoletarestaurants.domain.model.PaginationCriteria;
 import com.jamarlesf.plazoletarestaurants.domain.model.Restaurant;
+import com.jamarlesf.plazoletarestaurants.domain.model.RestaurantSortCriteria;
 import com.jamarlesf.plazoletarestaurants.domain.spi.IRestaurantPersistencePort;
 import com.jamarlesf.plazoletarestaurants.domain.spi.IUserExternalPort;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +30,11 @@ public class RestaurantUseCase implements IRestaurantServicePort {
     @Override
     public List<Restaurant> findAll() {
         return restaurantPersistencePort.findAll();
+    }
+
+    @Override
+    public PageModel<Restaurant> getRestaurantsPaginatedAndSorted(PaginationCriteria pagination, RestaurantSortCriteria sortCriteria) {
+        return restaurantPersistencePort.findAllPaginated(pagination, sortCriteria);
     }
 
     private void validateRestaurantFields(Restaurant restaurant) {

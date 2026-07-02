@@ -1,7 +1,8 @@
 package com.jamarlesf.plazoletarestaurants.infrastructure.input.rest;
 
 import com.jamarlesf.plazoletarestaurants.application.dto.request.RestaurantRequestDto;
-import com.jamarlesf.plazoletarestaurants.application.dto.response.RestaurantResponseDto;
+import com.jamarlesf.plazoletarestaurants.application.dto.response.PageResponseDto;
+import com.jamarlesf.plazoletarestaurants.application.dto.response.RestaurantBasicResponseDto;
 import com.jamarlesf.plazoletarestaurants.application.handler.IRestaurantHandler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -18,9 +19,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/restaurants/")
@@ -69,9 +69,12 @@ public class RestaurantRestController {
                             mediaType = MediaType.APPLICATION_JSON_VALUE)
             )
     })
-    @PreAuthorize("hasAuthority('ADMINISTRADOR')")
+    @PreAuthorize("hasAuthority('CLIENTE')")
     @GetMapping()
-    public ResponseEntity<List<RestaurantResponseDto>> findAllRestaurants() {
-        return ResponseEntity.ok(restaurantHandler.getRestaurants());
+    public ResponseEntity<PageResponseDto<RestaurantBasicResponseDto>> findRestaurants(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size
+    ) {
+        return ResponseEntity.ok(restaurantHandler.getRestaurantsPaginated(page, size));
     }
 }

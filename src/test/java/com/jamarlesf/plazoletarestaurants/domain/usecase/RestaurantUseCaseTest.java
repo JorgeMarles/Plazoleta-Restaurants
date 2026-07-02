@@ -170,5 +170,19 @@ class RestaurantUseCaseTest {
         verify(restaurantPersistencePort, times(1)).findAll();
     }
 
+    @Test
+    void getRestaurantsPaginatedAndSorted_ShouldReturnPageModel() {
+        com.jamarlesf.plazoletarestaurants.domain.model.PaginationCriteria pagination = new com.jamarlesf.plazoletarestaurants.domain.model.PaginationCriteria(0, 10);
+        com.jamarlesf.plazoletarestaurants.domain.model.RestaurantSortCriteria sort = new com.jamarlesf.plazoletarestaurants.domain.model.RestaurantSortCriteria("name");
+        com.jamarlesf.plazoletarestaurants.domain.model.PageModel<Restaurant> expectedPage = new com.jamarlesf.plazoletarestaurants.domain.model.PageModel<>(List.of(restaurant), 0, 10, 1, 1, true, true);
+
+        when(restaurantPersistencePort.findAllPaginated(pagination, sort)).thenReturn(expectedPage);
+
+        com.jamarlesf.plazoletarestaurants.domain.model.PageModel<Restaurant> actualPage = restaurantUseCase.getRestaurantsPaginatedAndSorted(pagination, sort);
+
+        assertSame(expectedPage, actualPage);
+        verify(restaurantPersistencePort, times(1)).findAllPaginated(pagination, sort);
+    }
+
 
 }

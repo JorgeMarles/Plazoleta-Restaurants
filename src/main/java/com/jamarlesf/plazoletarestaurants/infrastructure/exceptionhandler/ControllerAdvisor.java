@@ -6,6 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import com.jamarlesf.plazoletarestaurants.infrastructure.out.rest.exception.UserExternalServiceException;
+
 import java.util.Map;
 
 @ControllerAdvice
@@ -16,5 +18,10 @@ public class ControllerAdvisor {
     @ExceptionHandler(DomainException.class)
     public ResponseEntity<Map<String, String>> handleDomainException(DomainException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(MESSAGE, ex.getMessage()));
+    }
+
+    @ExceptionHandler(UserExternalServiceException.class)
+    public ResponseEntity<Map<String, String>> handleUserExternalServiceException(UserExternalServiceException ex) {
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(Map.of(MESSAGE, ex.getMessage()));
     }
 }

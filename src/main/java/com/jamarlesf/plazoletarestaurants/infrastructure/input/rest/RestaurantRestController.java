@@ -1,8 +1,10 @@
 package com.jamarlesf.plazoletarestaurants.infrastructure.input.rest;
 
 import com.jamarlesf.plazoletarestaurants.application.dto.request.RestaurantRequestDto;
+import com.jamarlesf.plazoletarestaurants.application.dto.response.DishResponseDto;
 import com.jamarlesf.plazoletarestaurants.application.dto.response.PageResponseDto;
 import com.jamarlesf.plazoletarestaurants.application.dto.response.RestaurantBasicResponseDto;
+import com.jamarlesf.plazoletarestaurants.application.handler.IDishHandler;
 import com.jamarlesf.plazoletarestaurants.application.handler.IRestaurantHandler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -18,6 +20,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class RestaurantRestController {
 
     private final IRestaurantHandler restaurantHandler;
+    private final IDishHandler dishHandler;
 
     @Operation(
             summary = "Create a new restaurant",
@@ -76,5 +80,27 @@ public class RestaurantRestController {
             @RequestParam(required = false) Integer size
     ) {
         return ResponseEntity.ok(restaurantHandler.getRestaurantsPaginated(page, size));
+    }
+    @Operation(
+            summary = "Get dishes by restaurant",
+            description = "Retrieves a paginated list of dishes for a specific restaurant, optionally filtered by category"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Dishes retrieved successfully",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE)
+            )
+    })
+    @PreAuthorize("hasAuthority('CLIENTE')")
+    @GetMapping("{id}/dishes")
+    public ResponseEntity<PageResponseDto<DishResponseDto>> getDishesByRestaurant(
+            @PathVariable("id") Long id,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size
+    ) {
+        return ResponseEntity.ok(dishHandler.getDishesByRestaurant(id, categoryId, page, size));
     }
 }

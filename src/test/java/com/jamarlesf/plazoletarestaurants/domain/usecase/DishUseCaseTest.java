@@ -4,6 +4,8 @@ import com.jamarlesf.plazoletarestaurants.domain.exception.DomainException;
 import com.jamarlesf.plazoletarestaurants.domain.model.Category;
 import com.jamarlesf.plazoletarestaurants.domain.model.Dish;
 import com.jamarlesf.plazoletarestaurants.domain.model.Restaurant;
+import com.jamarlesf.plazoletarestaurants.domain.model.PageModel;
+import com.jamarlesf.plazoletarestaurants.domain.model.PaginationCriteria;
 import com.jamarlesf.plazoletarestaurants.domain.spi.ICategoryPersistencePort;
 import com.jamarlesf.plazoletarestaurants.domain.spi.IDishPersistencePort;
 import com.jamarlesf.plazoletarestaurants.domain.spi.IRestaurantPersistencePort;
@@ -18,6 +20,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -193,5 +196,18 @@ class DishUseCaseTest {
 
         assertEquals("No eres el propietario de este restaurante", exception.getMessage());
         verify(dishPersistencePort).findById(1L);
+    }
+    @Test
+    @DisplayName("findByRestaurantId - Should return paginated dishes")
+    void findByRestaurantId_ShouldReturnPaginatedDishes() {
+        PaginationCriteria criteria = new PaginationCriteria(0, 10);
+        PageModel<Dish> expectedPage = new PageModel<>(List.of(dish), 0, 10, 1, 1, true, true);
+        
+        when(dishPersistencePort.findByRestaurantId(1L, 1L, criteria)).thenReturn(expectedPage);
+
+        PageModel<Dish> result = dishUseCase.findByRestaurantId(1L, 1L, criteria);
+
+        assertEquals(expectedPage, result);
+        verify(dishPersistencePort).findByRestaurantId(1L, 1L, criteria);
     }
 }

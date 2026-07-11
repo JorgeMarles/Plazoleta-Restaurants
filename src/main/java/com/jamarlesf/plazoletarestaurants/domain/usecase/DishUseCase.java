@@ -9,8 +9,9 @@ import com.jamarlesf.plazoletarestaurants.domain.spi.ICategoryPersistencePort;
 import com.jamarlesf.plazoletarestaurants.domain.spi.IDishPersistencePort;
 import com.jamarlesf.plazoletarestaurants.domain.spi.IRestaurantPersistencePort;
 
-import java.util.List;
+import com.jamarlesf.plazoletarestaurants.domain.model.PageModel;
 
+import java.util.List;
 public class DishUseCase implements IDishServicePort {
 
     private final IDishPersistencePort dishPersistencePort;
@@ -80,5 +81,10 @@ public class DishUseCase implements IDishServicePort {
 
         dish.setActive(active);
         dishPersistencePort.save(dish);
+    }
+
+    @Override
+    public PageModel<Dish> findByRestaurantId(Long restaurantId, Long categoryId, com.jamarlesf.plazoletarestaurants.domain.model.PaginationCriteria paginationCriteria) {
+        return dishPersistencePort.findByRestaurantId(restaurantId, categoryId, paginationCriteria);
     }
 }

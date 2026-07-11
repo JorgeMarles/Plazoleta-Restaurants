@@ -7,6 +7,9 @@ import org.mapstruct.ReportingPolicy;
 
 import java.util.List;
 
+import com.jamarlesf.plazoletarestaurants.application.dto.response.PageResponseDto;
+import com.jamarlesf.plazoletarestaurants.domain.model.PageModel;
+
 @Mapper(
         componentModel = "spring",
         uses = {ICategoryResponseMapper.class, IRestaurantResponseMapper.class},
@@ -16,4 +19,20 @@ import java.util.List;
 public interface IDishResponseMapper {
     DishResponseDto toResponse(Dish dish);
     List<DishResponseDto> toResponseList(List<Dish> dishes);
+
+    default PageResponseDto<DishResponseDto> toPageResponseDto(PageModel<Dish> pageModel) {
+        if (pageModel == null) {
+            return null;
+        }
+
+        return new PageResponseDto<>(
+                toResponseList(pageModel.getContent()),
+                pageModel.getPageNumber(),
+                pageModel.getPageSize(),
+                pageModel.getTotalElements(),
+                pageModel.getTotalPages(),
+                pageModel.isFirst(),
+                pageModel.isLast()
+        );
+    }
 }

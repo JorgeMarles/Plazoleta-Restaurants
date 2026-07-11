@@ -3,6 +3,7 @@ package com.jamarlesf.plazoletarestaurants.application.handler;
 import com.jamarlesf.plazoletarestaurants.application.dto.request.DishRequestDto;
 import com.jamarlesf.plazoletarestaurants.application.dto.request.UpdateDishRequestDto;
 import com.jamarlesf.plazoletarestaurants.application.dto.response.DishResponseDto;
+import com.jamarlesf.plazoletarestaurants.application.dto.response.PageResponseDto;
 
 import com.jamarlesf.plazoletarestaurants.application.dto.request.UpdateDishStatusRequestDto;
 
@@ -13,4 +14,5 @@ public interface IDishHandler {
     List<DishResponseDto> getDishes();
     void updateDish(UpdateDishRequestDto updateDishRequestDto, Long userId);
     void updateDishStatus(Long id, UpdateDishStatusRequestDto updateDishStatusRequestDto, Long userId);
+    PageResponseDto<DishResponseDto> getDishesByRestaurant(Long restaurantId, Long categoryId, Integer page, Integer size);
 }

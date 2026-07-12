@@ -8,6 +8,12 @@ import com.jamarlesf.plazoletarestaurants.domain.spi.IRestaurantPersistencePort;
 import com.jamarlesf.plazoletarestaurants.domain.spi.IUserExternalPort;
 import com.jamarlesf.plazoletarestaurants.domain.usecase.DishUseCase;
 import com.jamarlesf.plazoletarestaurants.domain.usecase.RestaurantUseCase;
+import com.jamarlesf.plazoletarestaurants.domain.api.IOrderServicePort;
+import com.jamarlesf.plazoletarestaurants.domain.spi.IOrderPersistencePort;
+import com.jamarlesf.plazoletarestaurants.domain.usecase.OrderUseCase;
+import com.jamarlesf.plazoletarestaurants.infrastructure.out.jpa.adapter.OrderJpaAdapter;
+import com.jamarlesf.plazoletarestaurants.infrastructure.out.jpa.mapper.IOrderEntityMapper;
+import com.jamarlesf.plazoletarestaurants.infrastructure.out.jpa.repository.IOrderRepository;
 import com.jamarlesf.plazoletarestaurants.infrastructure.out.jpa.adapter.CategoryJpaAdapter;
 import com.jamarlesf.plazoletarestaurants.infrastructure.out.jpa.adapter.DishJpaAdapter;
 import com.jamarlesf.plazoletarestaurants.infrastructure.out.jpa.adapter.RestaurantJpaAdapter;
@@ -35,6 +41,8 @@ public class BeanConfiguration {
     private final IDishEntityMapper dishEntityMapper;
     private final ICategoryRepository categoryRepository;
     private final ICategoryEntityMapper categoryEntityMapper;
+    private final IOrderRepository orderRepository;
+    private final IOrderEntityMapper orderEntityMapper;
 
     @Bean
     public IRestaurantPersistencePort restaurantPersistencePort() {
@@ -64,5 +72,15 @@ public class BeanConfiguration {
     @Bean
     public IDishServicePort dishServicePort() {
         return new DishUseCase(dishPersistencePort(), categoryPersistencePort(), restaurantPersistencePort());
+    }
+
+    @Bean
+    public IOrderPersistencePort orderPersistencePort() {
+        return new OrderJpaAdapter(orderRepository, orderEntityMapper);
+    }
+
+    @Bean
+    public IOrderServicePort orderServicePort() {
+        return new OrderUseCase(orderPersistencePort(), userExternalPort(), dishPersistencePort());
     }
 }

@@ -5,6 +5,7 @@ import com.jamarlesf.plazoletarestaurants.application.dto.request.UpdateDishRequ
 import com.jamarlesf.plazoletarestaurants.application.dto.request.UpdateDishStatusRequestDto;
 import com.jamarlesf.plazoletarestaurants.application.dto.response.DishResponseDto;
 import com.jamarlesf.plazoletarestaurants.application.handler.IDishHandler;
+import com.jamarlesf.plazoletarestaurants.infrastructure.security.utils.SecurityContextUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -37,18 +38,6 @@ public class DishRestController {
 
     private final IDishHandler dishHandler;
 
-    private Long getAuthenticatedUserId() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null) {
-            if (auth.getDetails() instanceof Long userId) {
-                return userId;
-            } else if (auth.getDetails() instanceof Integer userIdInt) {
-                return userIdInt.longValue();
-            }
-        }
-        throw new IllegalStateException("No se pudo obtener el ID del usuario autenticado");
-    }
-
     @Operation(
             summary = "Create a new dish",
             description = "Creates a new dish with the provided information"
@@ -72,7 +61,7 @@ public class DishRestController {
     @PostMapping()
     @PreAuthorize("hasAuthority('PROPIETARIO')")
     public ResponseEntity<Void> createDish(@RequestBody DishRequestDto dishRequestDto) {
-        dishHandler.saveDish(dishRequestDto, getAuthenticatedUserId());
+        dishHandler.saveDish(dishRequestDto, SecurityContextUtils.getAuthenticatedUserId());
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
@@ -118,7 +107,7 @@ public class DishRestController {
     @PreAuthorize("hasAuthority('PROPIETARIO')")
     public ResponseEntity<Void> updateDish(@PathVariable Long id, @RequestBody UpdateDishRequestDto updateDishRequestDto) {
         updateDishRequestDto.setId(id);
-        dishHandler.updateDish(updateDishRequestDto, getAuthenticatedUserId());
+        dishHandler.updateDish(updateDishRequestDto, SecurityContextUtils.getAuthenticatedUserId());
         return ResponseEntity.ok().build();
     }
 
@@ -148,7 +137,7 @@ public class DishRestController {
             @PathVariable Long id,
             @RequestBody UpdateDishStatusRequestDto updateDishStatusRequestDto
     ) {
-        dishHandler.updateDishStatus(id, updateDishStatusRequestDto, getAuthenticatedUserId());
+        dishHandler.updateDishStatus(id, updateDishStatusRequestDto, SecurityContextUtils.getAuthenticatedUserId());
         return ResponseEntity.ok().build();
     }
 }

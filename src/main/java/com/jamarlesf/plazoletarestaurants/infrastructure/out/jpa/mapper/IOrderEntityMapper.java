@@ -15,12 +15,9 @@ public interface IOrderEntityMapper {
     Order toOrder(OrderEntity orderEntity);
     OrderEntity toOrderEntity(Order order);
     
-    @Mapping(target = "id.orderId", source = "orderId")
     @Mapping(target = "id.dishId", source = "dishId")
-    @Mapping(target = "order.id", source = "orderId")
     OrderDishEntity toOrderDishEntity(OrderDish orderDish);
     
-    @Mapping(target = "orderId", source = "id.orderId")
     @Mapping(target = "dishId", source = "id.dishId")
     OrderDish toOrderDish(OrderDishEntity orderDishEntity);
 }

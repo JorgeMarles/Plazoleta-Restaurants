@@ -48,8 +48,8 @@ class OrderUseCaseTest {
 
     @BeforeEach
     void setUp() {
-        orderDish1 = new OrderDish(null, 1L, 2);
-        orderDish2 = new OrderDish(null, 2L, 1);
+        orderDish1 = new OrderDish(1L, 2);
+        orderDish2 = new OrderDish(2L, 1);
 
         orderRequest = new Order();
         orderRequest.setCustomerId(123L);
@@ -124,7 +124,7 @@ class OrderUseCaseTest {
         when(userExternalPort.isCustomer(123L)).thenReturn(true);
         when(orderPersistencePort.hasActiveOrders(123L, OrderStatus.getInProcessStatuses())).thenReturn(false);
 
-        OrderDish invalidDish = new OrderDish(null, 3L, 0); // Amount 0
+        OrderDish invalidDish = new OrderDish(3L, 0); // Amount 0
         orderRequest.setDishes(Collections.singletonList(invalidDish));
 
         assertThrows(DomainException.class, () -> orderUseCase.save(orderRequest));
@@ -188,8 +188,8 @@ class OrderUseCaseTest {
         dish1.setId(1L);
         dish1.setRestaurant(restaurant);
 
-        OrderDish duplicateDish1 = new OrderDish(null, 1L, 2);
-        OrderDish duplicateDish2 = new OrderDish(null, 1L, 3);
+        OrderDish duplicateDish1 = new OrderDish(1L, 2);
+        OrderDish duplicateDish2 = new OrderDish(1L, 3);
         orderRequest.setDishes(Arrays.asList(duplicateDish1, duplicateDish2));
 
         DomainException e = assertThrows(DomainException.class, () -> orderUseCase.save(orderRequest));

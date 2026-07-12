@@ -13,5 +13,5 @@ public class DishResponseDto {
     private String imageUrl;
     private Boolean active;
     private CategoryResponseDto category;
-    private RestaurantResponseDto restaurant;
+    private Long restaurantId;
 }

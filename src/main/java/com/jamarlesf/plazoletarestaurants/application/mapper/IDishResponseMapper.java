@@ -17,6 +17,7 @@ import com.jamarlesf.plazoletarestaurants.domain.model.PageModel;
         unmappedSourcePolicy = ReportingPolicy.IGNORE
 )
 public interface IDishResponseMapper {
+    @org.mapstruct.Mapping(source = "restaurant.id", target = "restaurantId")
     DishResponseDto toResponse(Dish dish);
     List<DishResponseDto> toResponseList(List<Dish> dishes);
 

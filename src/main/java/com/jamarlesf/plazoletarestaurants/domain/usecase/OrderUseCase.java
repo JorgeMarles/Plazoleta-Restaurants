@@ -16,7 +16,9 @@ import java.util.List;
 import java.util.Set;
 import com.jamarlesf.plazoletarestaurants.domain.model.PageModel;
 import com.jamarlesf.plazoletarestaurants.domain.model.PaginationCriteria;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class OrderUseCase implements IOrderServicePort {
 
     private final IOrderPersistencePort orderPersistencePort;
@@ -93,5 +95,21 @@ public class OrderUseCase implements IOrderServicePort {
     @Override
     public PageModel<Order> findByRestaurantIdAndStatus(Long restaurantId, OrderStatus status, PaginationCriteria paginationCriteria) {
         return orderPersistencePort.findByRestaurantIdAndStatus(restaurantId, status, paginationCriteria);
+    }
+
+    @Override
+    public void assignOrder(Long orderId, Long employeeId) {
+        if (!userExternalPort.isEmployee(employeeId)) {
+            throw new DomainException("El usuario no es un empleado");
+        }
+        Order order = getOrderById(orderId);
+        log.info("id {}", order.getId());
+        order.assignChefAndSetInPreparation(employeeId);
+        orderPersistencePort.save(order);
+    }
+
+    private Order getOrderById(Long orderId) {
+        return orderPersistencePort.findById(orderId)
+                .orElseThrow(() -> new DomainException("El pedido con id " + orderId + " no existe"));
     }
 }

@@ -14,6 +14,8 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import com.jamarlesf.plazoletarestaurants.domain.model.PageModel;
+import com.jamarlesf.plazoletarestaurants.domain.model.PaginationCriteria;
 
 public class OrderUseCase implements IOrderServicePort {
 
@@ -86,5 +88,10 @@ public class OrderUseCase implements IOrderServicePort {
         order.setRestaurantId(restaurantId);
         
         orderPersistencePort.save(order);
+    }
+
+    @Override
+    public PageModel<Order> findByRestaurantIdAndStatus(Long restaurantId, OrderStatus status, PaginationCriteria paginationCriteria) {
+        return orderPersistencePort.findByRestaurantIdAndStatus(restaurantId, status, paginationCriteria);
     }
 }

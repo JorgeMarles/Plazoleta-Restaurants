@@ -12,4 +12,5 @@ public interface IDishServicePort {
     void updateDish(Long id, Integer price, String description, Long requestUserId);
     void updateDishStatus(Long id, Boolean active, Long requestUserId);
     PageModel<Dish> findByRestaurantId(Long restaurantId, Long categoryId, PaginationCriteria paginationCriteria);
+    Dish getDish(Long id);
 }

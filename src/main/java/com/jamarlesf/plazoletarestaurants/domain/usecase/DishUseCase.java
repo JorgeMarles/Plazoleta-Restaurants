@@ -87,4 +87,9 @@ public class DishUseCase implements IDishServicePort {
     public PageModel<Dish> findByRestaurantId(Long restaurantId, Long categoryId, com.jamarlesf.plazoletarestaurants.domain.model.PaginationCriteria paginationCriteria) {
         return dishPersistencePort.findByRestaurantId(restaurantId, categoryId, paginationCriteria);
     }
+
+    @Override
+    public Dish getDish(Long id) {
+        return dishPersistencePort.findById(id).orElseThrow(() -> new DomainException("El plato con id " + id + " no existe"));
+    }
 }

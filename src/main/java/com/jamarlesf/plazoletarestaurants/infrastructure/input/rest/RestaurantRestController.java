@@ -5,7 +5,9 @@ import com.jamarlesf.plazoletarestaurants.application.dto.response.DishResponseD
 import com.jamarlesf.plazoletarestaurants.application.dto.response.PageResponseDto;
 import com.jamarlesf.plazoletarestaurants.application.dto.response.RestaurantBasicResponseDto;
 import com.jamarlesf.plazoletarestaurants.application.handler.IDishHandler;
+import com.jamarlesf.plazoletarestaurants.application.handler.IOrderHandler;
 import com.jamarlesf.plazoletarestaurants.application.handler.IRestaurantHandler;
+import com.jamarlesf.plazoletarestaurants.application.dto.response.OrderResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -33,6 +35,7 @@ public class RestaurantRestController {
 
     private final IRestaurantHandler restaurantHandler;
     private final IDishHandler dishHandler;
+    private final IOrderHandler orderHandler;
 
     @Operation(
             summary = "Create a new restaurant",
@@ -102,5 +105,28 @@ public class RestaurantRestController {
             @RequestParam(required = false) Integer size
     ) {
         return ResponseEntity.ok(dishHandler.getDishesByRestaurant(id, categoryId, page, size));
+    }
+
+    @Operation(
+            summary = "Get orders by restaurant",
+            description = "Retrieves a paginated list of orders for a specific restaurant, filtered by status"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Orders retrieved successfully",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE)
+            )
+    })
+    @PreAuthorize("hasAuthority('EMPLEADO')")
+    @GetMapping("{id}/orders")
+    public ResponseEntity<PageResponseDto<OrderResponseDto>> getOrdersByRestaurant(
+            @PathVariable("id") Long id,
+            @RequestParam String status,
+            @RequestParam(required = false, defaultValue = "0") Integer page,
+            @RequestParam(required = false, defaultValue = "10") Integer size
+    ) {
+        return ResponseEntity.ok(orderHandler.getOrdersByRestaurantAndStatus(id, status, page, size));
     }
 }

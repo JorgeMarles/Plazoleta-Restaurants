@@ -60,7 +60,7 @@ public class DishUseCase implements IDishServicePort {
 
     @Override
     public void updateDish(Long id, Integer price, String description, Long requestUserId) {
-        Dish dish = dishPersistencePort.findById(id).orElseThrow(() -> new DomainException("El plato con id " + id + " no existe"));
+        Dish dish = getDish(id);
 
         if(!requestUserId.equals(dish.getRestaurant().getOwnerId())) {
             throw new DomainException("No eres el propietario de este restaurante");
@@ -74,7 +74,7 @@ public class DishUseCase implements IDishServicePort {
 
     @Override
     public void updateDishStatus(Long id, Boolean active, Long requestUserId) {
-        Dish dish = dishPersistencePort.findById(id).orElseThrow(() -> new DomainException("El plato con id " + id + " no existe"));
+        Dish dish = getDish(id);
         if(!requestUserId.equals(dish.getRestaurant().getOwnerId())) {
             throw new DomainException("No eres el propietario de este restaurante");
         }
@@ -86,5 +86,10 @@ public class DishUseCase implements IDishServicePort {
     @Override
     public PageModel<Dish> findByRestaurantId(Long restaurantId, Long categoryId, com.jamarlesf.plazoletarestaurants.domain.model.PaginationCriteria paginationCriteria) {
         return dishPersistencePort.findByRestaurantId(restaurantId, categoryId, paginationCriteria);
+    }
+
+    @Override
+    public Dish getDish(Long id) {
+        return dishPersistencePort.findById(id).orElseThrow(() -> new DomainException("El plato con id " + id + " no existe"));
     }
 }

@@ -8,4 +8,5 @@ import com.jamarlesf.plazoletarestaurants.domain.model.PaginationCriteria;
 public interface IOrderServicePort {
     void save(Order order);
     PageModel<Order> findByRestaurantIdAndStatus(Long restaurantId, OrderStatus status, PaginationCriteria paginationCriteria);
+    void assignOrder(Long orderId, Long employeeId);
 }

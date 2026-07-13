@@ -11,8 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,5 +36,18 @@ public class OrderRestController {
     public ResponseEntity<Void> createOrder(@RequestBody OrderRequestDto orderRequestDto) {
         orderHandler.saveOrder(orderRequestDto, SecurityContextUtils.getAuthenticatedUserId());
         return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @Operation(summary = "Assign an order", description = "Assigns an order to the authenticated employee and changes its status to IN_PREPARATION")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Order assigned successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid order state")
+    })
+    @PatchMapping("/{id}/assign")
+    @PreAuthorize("hasAuthority('EMPLEADO')")
+    public ResponseEntity<Void> assignOrder(@PathVariable Long id) {
+        Long employeeId = SecurityContextUtils.getAuthenticatedUserId();
+        orderHandler.assignOrder(id, employeeId);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

@@ -1,5 +1,6 @@
 package com.jamarlesf.plazoletarestaurants.infrastructure.out.jpa.adapter;
 
+import com.jamarlesf.plazoletarestaurants.domain.exception.DomainException;
 import com.jamarlesf.plazoletarestaurants.domain.model.Order;
 import com.jamarlesf.plazoletarestaurants.domain.model.OrderStatus;
 import com.jamarlesf.plazoletarestaurants.domain.model.PageModel;
@@ -8,6 +9,7 @@ import com.jamarlesf.plazoletarestaurants.domain.spi.IOrderPersistencePort;
 import com.jamarlesf.plazoletarestaurants.infrastructure.out.jpa.entity.OrderEntity;
 import com.jamarlesf.plazoletarestaurants.infrastructure.out.jpa.mapper.IOrderEntityMapper;
 import com.jamarlesf.plazoletarestaurants.infrastructure.out.jpa.repository.IOrderRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Page;
@@ -16,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -26,11 +29,19 @@ public class OrderJpaAdapter implements IOrderPersistencePort {
 
     @Override
     public void save(Order order) {
-        OrderEntity orderEntity = orderEntityMapper.toOrderEntity(order);
-        if (orderEntity.getDishes() != null) {
-            orderEntity.getDishes().forEach(dish -> dish.setOrder(orderEntity));
+        if (order.getId() != null) {
+            OrderEntity existingEntity = orderRepository.findById(order.getId())
+                    .orElseThrow(() -> new EntityNotFoundException("Orden no encontrada con id " + order.getId()));
+            
+            orderEntityMapper.updateOrderEntityFromOrder(order, existingEntity);
+            orderRepository.save(existingEntity);
+        } else {
+            OrderEntity newEntity = orderEntityMapper.toOrderEntity(order);
+            if (newEntity.getDishes() != null) {
+                newEntity.getDishes().forEach(dish -> dish.setOrder(newEntity));
+            }
+            orderRepository.save(newEntity);
         }
-        orderRepository.save(orderEntity);
     }
 
     @Override
@@ -57,5 +68,11 @@ public class OrderJpaAdapter implements IOrderPersistencePort {
                 orderEntityPage.isFirst(),
                 orderEntityPage.isLast()
         );
+    }
+
+    @Override
+    public Optional<Order> findById(Long orderId) {
+        return orderRepository.findById(orderId)
+                .map(orderEntityMapper::toOrder);
     }
 }

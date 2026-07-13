@@ -8,4 +8,5 @@ import com.jamarlesf.plazoletarestaurants.application.dto.response.PageResponseD
 public interface IOrderHandler {
     void saveOrder(OrderRequestDto orderRequestDto, Long customerId);
     PageResponseDto<OrderResponseDto> getOrdersByRestaurantAndStatus(Long restaurantId, String status, Integer page, Integer size);
+    void assignOrder(Long orderId, Long employeeId);
 }

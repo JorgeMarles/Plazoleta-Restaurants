@@ -20,4 +20,7 @@ public interface IOrderEntityMapper {
     
     @Mapping(target = "dishId", source = "id.dishId")
     OrderDish toOrderDish(OrderDishEntity orderDishEntity);
+
+    @Mapping(target = "dishes", ignore = true)
+    void updateOrderEntityFromOrder(Order order, @org.mapstruct.MappingTarget OrderEntity orderEntity);
 }

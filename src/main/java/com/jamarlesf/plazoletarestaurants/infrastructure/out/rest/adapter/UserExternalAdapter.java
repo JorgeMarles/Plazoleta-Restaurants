@@ -13,6 +13,7 @@ public class UserExternalAdapter implements IUserExternalPort {
 
     private static final String OWNER_ROLE_NAME = "PROPIETARIO";
     private static final String CUSTOMER_ROLE_NAME = "CLIENTE";
+    private static final String EMPLOYEE_ROLE_NAME = "EMPLEADO";
 
     private final IUserFeignClient userFeignClient;
 
@@ -36,5 +37,10 @@ public class UserExternalAdapter implements IUserExternalPort {
     @Override
     public boolean isCustomer(Long userId) {
         return isRole(userId, CUSTOMER_ROLE_NAME);
+    }
+
+    @Override
+    public boolean isEmployee(Long userId) {
+        return isRole(userId, EMPLOYEE_ROLE_NAME);
     }
 }

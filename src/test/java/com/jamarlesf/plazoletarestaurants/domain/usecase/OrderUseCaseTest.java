@@ -7,7 +7,10 @@ import com.jamarlesf.plazoletarestaurants.domain.model.OrderDish;
 import com.jamarlesf.plazoletarestaurants.domain.model.Restaurant;
 import com.jamarlesf.plazoletarestaurants.domain.model.OrderStatus;
 import com.jamarlesf.plazoletarestaurants.domain.spi.IDishPersistencePort;
+import com.jamarlesf.plazoletarestaurants.domain.spi.IOrderNotificationPort;
 import com.jamarlesf.plazoletarestaurants.domain.spi.IOrderPersistencePort;
+import com.jamarlesf.plazoletarestaurants.domain.spi.IPinEncoderPort;
+import com.jamarlesf.plazoletarestaurants.domain.spi.IPinGeneratorPort;
 import com.jamarlesf.plazoletarestaurants.domain.spi.IUserExternalPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -23,7 +26,6 @@ import java.util.Collections;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -38,18 +40,25 @@ class OrderUseCaseTest {
     @Mock
     private IDishPersistencePort dishPersistencePort;
 
+    @Mock
+    private IOrderNotificationPort orderNotificationPort;
+
+    @Mock
+    private IPinEncoderPort pinEncoderPort;
+
+    @Mock
+    private IPinGeneratorPort pinGeneratorPort;
+
     @InjectMocks
     private OrderUseCase orderUseCase;
 
     private Order orderRequest;
-    private OrderDish orderDish1;
-    private OrderDish orderDish2;
     private Restaurant restaurant;
 
     @BeforeEach
     void setUp() {
-        orderDish1 = new OrderDish(1L, 2);
-        orderDish2 = new OrderDish(2L, 1);
+        OrderDish orderDish1 = new OrderDish(1L, 2);
+        OrderDish orderDish2 = new OrderDish(2L, 1);
 
         orderRequest = new Order();
         orderRequest.setCustomerId(123L);
@@ -199,5 +208,27 @@ class OrderUseCaseTest {
         verify(orderPersistencePort).hasActiveOrders(anyLong(), anyList());
 
         verify(orderPersistencePort, never()).save(any(Order.class));
+    }
+
+    @Test
+    @DisplayName("Debe marcar la orden como lista y notificar al cliente")
+    void shouldMarkAsReadyAndNotifyCustomer() {
+        Long orderId = 1L;
+        Order order = new Order();
+        order.setId(orderId);
+        order.setCustomerId(123L);
+        order.setStatus(OrderStatus.IN_PREPARATION);
+
+        when(orderPersistencePort.findById(orderId)).thenReturn(Optional.of(order));
+        when(pinGeneratorPort.generatePin()).thenReturn("123456");
+        when(pinEncoderPort.encode("123456")).thenReturn("hashed_pin_123");
+        when(userExternalPort.getCustomerPhone(123L)).thenReturn("+1234567890");
+
+        assertDoesNotThrow(() -> orderUseCase.markAsReady(orderId));
+
+        assertEquals(OrderStatus.READY, order.getStatus());
+        assertEquals("hashed_pin_123", order.getPinHash());
+        verify(orderPersistencePort).save(order);
+        verify(orderNotificationPort).notifyOrderReady("+1234567890", "123456");
     }
 }

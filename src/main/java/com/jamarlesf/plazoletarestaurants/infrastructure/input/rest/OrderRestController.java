@@ -50,4 +50,16 @@ public class OrderRestController {
         orderHandler.assignOrder(id, employeeId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    @Operation(summary = "Mark order as ready", description = "Marks an order as ready and notifies the customer")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Order marked as ready"),
+            @ApiResponse(responseCode = "400", description = "Invalid order state")
+    })
+    @PatchMapping("/{id}/ready")
+    @PreAuthorize("hasAuthority('EMPLEADO')")
+    public ResponseEntity<Void> markAsReady(@PathVariable Long id) {
+        orderHandler.markAsReady(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }

@@ -7,7 +7,10 @@ import com.jamarlesf.plazoletarestaurants.domain.model.Order;
 import com.jamarlesf.plazoletarestaurants.domain.model.OrderDish;
 import com.jamarlesf.plazoletarestaurants.domain.model.OrderStatus;
 import com.jamarlesf.plazoletarestaurants.domain.spi.IDishPersistencePort;
+import com.jamarlesf.plazoletarestaurants.domain.spi.IOrderNotificationPort;
 import com.jamarlesf.plazoletarestaurants.domain.spi.IOrderPersistencePort;
+import com.jamarlesf.plazoletarestaurants.domain.spi.IPinEncoderPort;
+import com.jamarlesf.plazoletarestaurants.domain.spi.IPinGeneratorPort;
 import com.jamarlesf.plazoletarestaurants.domain.spi.IUserExternalPort;
 
 import java.time.LocalDateTime;
@@ -24,11 +27,17 @@ public class OrderUseCase implements IOrderServicePort {
     private final IOrderPersistencePort orderPersistencePort;
     private final IUserExternalPort userExternalPort;
     private final IDishPersistencePort dishPersistencePort;
+    private final IOrderNotificationPort orderNotificationPort;
+    private final IPinEncoderPort pinEncoderPort;
+    private final IPinGeneratorPort pinGeneratorPort;
 
-    public OrderUseCase(IOrderPersistencePort orderPersistencePort, IUserExternalPort userExternalPort, IDishPersistencePort dishPersistencePort) {
+    public OrderUseCase(IOrderPersistencePort orderPersistencePort, IUserExternalPort userExternalPort, IDishPersistencePort dishPersistencePort, IOrderNotificationPort orderNotificationPort, IPinEncoderPort pinEncoderPort, IPinGeneratorPort pinGeneratorPort) {
         this.orderPersistencePort = orderPersistencePort;
         this.userExternalPort = userExternalPort;
         this.dishPersistencePort = dishPersistencePort;
+        this.orderNotificationPort = orderNotificationPort;
+        this.pinEncoderPort = pinEncoderPort;
+        this.pinGeneratorPort = pinGeneratorPort;
     }
 
     private void validateOrder(Order order) {
@@ -111,5 +120,18 @@ public class OrderUseCase implements IOrderServicePort {
     private Order getOrderById(Long orderId) {
         return orderPersistencePort.findById(orderId)
                 .orElseThrow(() -> new DomainException("El pedido con id " + orderId + " no existe"));
+    }
+
+    @Override
+    public void markAsReady(Long orderId) {
+        Order order = getOrderById(orderId);
+
+        String pin = pinGeneratorPort.generatePin();
+
+        order.markAsReady(pinEncoderPort.encode(pin));
+        orderPersistencePort.save(order);
+
+        String phone = userExternalPort.getCustomerPhone(order.getCustomerId());
+        orderNotificationPort.notifyOrderReady(phone, pin);
     }
 }

@@ -36,6 +36,7 @@ public class OrderEntity {
     private OrderStatus status;
     private Long chefId;
     private Long restaurantId;
+    private String pinHash;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderDishEntity> dishes;

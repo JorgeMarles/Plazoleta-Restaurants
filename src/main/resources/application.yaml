@@ -43,3 +43,5 @@ appVersion: "1.0.0"
 services:
   users:
     url: http://localhost:8080
+  notifications:
+    url: http://localhost:8082

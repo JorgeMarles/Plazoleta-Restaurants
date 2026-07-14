@@ -25,6 +25,15 @@ import com.jamarlesf.plazoletarestaurants.infrastructure.out.jpa.repository.IDis
 import com.jamarlesf.plazoletarestaurants.infrastructure.out.jpa.repository.IRestaurantRepository;
 import com.jamarlesf.plazoletarestaurants.infrastructure.out.rest.adapter.UserExternalAdapter;
 import com.jamarlesf.plazoletarestaurants.infrastructure.out.rest.client.IUserFeignClient;
+import com.jamarlesf.plazoletarestaurants.infrastructure.out.rest.adapter.NotificationServiceFeignAdapter;
+import com.jamarlesf.plazoletarestaurants.infrastructure.out.rest.client.INotificationFeignClient;
+import com.jamarlesf.plazoletarestaurants.domain.spi.IOrderNotificationPort;
+import com.jamarlesf.plazoletarestaurants.domain.spi.IPinEncoderPort;
+import com.jamarlesf.plazoletarestaurants.domain.spi.IPinGeneratorPort;
+import com.jamarlesf.plazoletarestaurants.infrastructure.out.encoder.adapter.BcryptPinEncoderAdapter;
+import com.jamarlesf.plazoletarestaurants.infrastructure.out.generator.adapter.NumericPinGeneratorAdapter;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,6 +45,7 @@ public class BeanConfiguration {
     private final IRestaurantRepository restaurantRepository;
     private final IRestaurantEntityMapper restaurantEntityMapper;
     private final IUserFeignClient userFeignClient;
+    private final INotificationFeignClient notificationFeignClient;
 
     private final IDishRepository dishRepository;
     private final IDishEntityMapper dishEntityMapper;
@@ -80,7 +90,27 @@ public class BeanConfiguration {
     }
 
     @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public IOrderNotificationPort orderNotificationPort() {
+        return new NotificationServiceFeignAdapter(notificationFeignClient);
+    }
+
+    @Bean
+    public IPinEncoderPort pinEncoderPort(PasswordEncoder passwordEncoder) {
+        return new BcryptPinEncoderAdapter(passwordEncoder);
+    }
+
+    @Bean
+    public IPinGeneratorPort pinGeneratorPort() {
+        return new NumericPinGeneratorAdapter();
+    }
+
+    @Bean
     public IOrderServicePort orderServicePort() {
-        return new OrderUseCase(orderPersistencePort(), userExternalPort(), dishPersistencePort());
+        return new OrderUseCase(orderPersistencePort(), userExternalPort(), dishPersistencePort(), orderNotificationPort(), pinEncoderPort(passwordEncoder()), pinGeneratorPort());
     }
 }

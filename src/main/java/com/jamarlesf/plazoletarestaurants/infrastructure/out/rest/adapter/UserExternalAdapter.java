@@ -43,4 +43,20 @@ public class UserExternalAdapter implements IUserExternalPort {
     public boolean isEmployee(Long userId) {
         return isRole(userId, EMPLOYEE_ROLE_NAME);
     }
+
+    @Override
+    public String getCustomerPhone(Long customerId) {
+        try {
+            UserExternalDto user = userFeignClient.getUserById(customerId);
+            if (user == null || user.getRole() == null || !CUSTOMER_ROLE_NAME.equals(user.getRole().getName())) {
+                throw new UserExternalServiceException("El usuario no existe o no tiene el rol de cliente");
+            }
+            return user.getPhone();
+        } catch (UserExternalServiceException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("Error communicating with user service", e);
+            throw new UserExternalServiceException("Error communicating with the external user service");
+        }
+    }
 }

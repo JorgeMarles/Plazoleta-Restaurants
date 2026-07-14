@@ -134,4 +134,16 @@ public class OrderUseCase implements IOrderServicePort {
         String phone = userExternalPort.getCustomerPhone(order.getCustomerId());
         orderNotificationPort.notifyOrderReady(phone, pin);
     }
+
+    @Override
+    public void markAsDelivered(Long orderId, String pin) {
+        Order order = getOrderById(orderId);
+
+        if (!pinEncoderPort.matches(pin, order.getPinHash())) {
+            throw new DomainException("El pin ingresado es incorrecto");
+        }
+
+        order.markAsDelivered();
+        orderPersistencePort.save(order);
+    }
 }

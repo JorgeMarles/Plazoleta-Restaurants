@@ -231,4 +231,65 @@ class OrderUseCaseTest {
         verify(orderPersistencePort).save(order);
         verify(orderNotificationPort).notifyOrderReady("+1234567890", "123456");
     }
+
+    @Test
+    @DisplayName("Debe marcar la orden como entregada cuando el pin es correcto y el estado es READY")
+    void shouldMarkAsDeliveredWhenPinIsCorrect() {
+        Long orderId = 1L;
+        String rawPin = "123456";
+        String hashedPin = "hashed_pin_123";
+
+        Order order = new Order();
+        order.setId(orderId);
+        order.setStatus(OrderStatus.READY);
+        order.setPinHash(hashedPin);
+
+        when(orderPersistencePort.findById(orderId)).thenReturn(Optional.of(order));
+        when(pinEncoderPort.matches(rawPin, hashedPin)).thenReturn(true);
+
+        assertDoesNotThrow(() -> orderUseCase.markAsDelivered(orderId, rawPin));
+
+        assertEquals(OrderStatus.DELIVERED, order.getStatus());
+        verify(orderPersistencePort).save(order);
+    }
+
+    @Test
+    @DisplayName("Debe fallar al marcar como entregado si el pin es incorrecto")
+    void shouldThrowExceptionWhenPinIsIncorrectForDelivered() {
+        Long orderId = 1L;
+        String rawPin = "000000";
+        String hashedPin = "hashed_pin_123";
+
+        Order order = new Order();
+        order.setId(orderId);
+        order.setStatus(OrderStatus.READY);
+        order.setPinHash(hashedPin);
+
+        when(orderPersistencePort.findById(orderId)).thenReturn(Optional.of(order));
+        when(pinEncoderPort.matches(rawPin, hashedPin)).thenReturn(false);
+
+        DomainException exception = assertThrows(DomainException.class, () -> orderUseCase.markAsDelivered(orderId, rawPin));
+        assertEquals("El pin ingresado es incorrecto", exception.getMessage());
+        verify(orderPersistencePort, never()).save(any(Order.class));
+    }
+
+    @Test
+    @DisplayName("Debe fallar al marcar como entregado si el estado no es READY")
+    void shouldThrowExceptionWhenStateIsNotReadyForDelivered() {
+        Long orderId = 1L;
+        String rawPin = "123456";
+        String hashedPin = "hashed_pin_123";
+
+        Order order = new Order();
+        order.setId(orderId);
+        order.setStatus(OrderStatus.IN_PREPARATION);
+        order.setPinHash(hashedPin);
+
+        when(orderPersistencePort.findById(orderId)).thenReturn(Optional.of(order));
+        when(pinEncoderPort.matches(rawPin, hashedPin)).thenReturn(true);
+
+        DomainException exception = assertThrows(DomainException.class, () -> orderUseCase.markAsDelivered(orderId, rawPin));
+        assertEquals("El pedido debe estar en estado listo para poder ser entregado", exception.getMessage());
+        verify(orderPersistencePort, never()).save(any(Order.class));
+    }
 }

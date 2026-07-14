@@ -146,4 +146,16 @@ public class OrderUseCase implements IOrderServicePort {
         order.markAsDelivered();
         orderPersistencePort.save(order);
     }
+
+    @Override
+    public void cancelOrder(Long orderId, Long customerId) {
+        Order order = getOrderById(orderId);
+        
+        if (!order.getCustomerId().equals(customerId)) {
+            throw new DomainException("El pedido no pertenece al usuario autenticado");
+        }
+        
+        order.markAsCancelled();
+        orderPersistencePort.save(order);
+    }
 }

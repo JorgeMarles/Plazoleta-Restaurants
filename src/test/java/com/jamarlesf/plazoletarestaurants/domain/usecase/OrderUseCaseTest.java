@@ -292,4 +292,42 @@ class OrderUseCaseTest {
         assertEquals("El pedido debe estar en estado listo para poder ser entregado", exception.getMessage());
         verify(orderPersistencePort, never()).save(any(Order.class));
     }
+
+    @Test
+    @DisplayName("Debe cancelar la orden exitosamente si el estado es PENDING y pertenece al usuario")
+    void shouldCancelOrderSuccessfully() {
+        Long orderId = 1L;
+        Long customerId = 123L;
+
+        Order order = new Order();
+        order.setId(orderId);
+        order.setCustomerId(customerId);
+        order.setStatus(OrderStatus.PENDING);
+
+        when(orderPersistencePort.findById(orderId)).thenReturn(Optional.of(order));
+
+        assertDoesNotThrow(() -> orderUseCase.cancelOrder(orderId, customerId));
+
+        assertEquals(OrderStatus.CANCELLED, order.getStatus());
+        verify(orderPersistencePort).save(order);
+    }
+
+    @Test
+    @DisplayName("Debe fallar al cancelar la orden si no pertenece al usuario autenticado")
+    void shouldThrowExceptionWhenOrderDoesNotBelongToUserOnCancel() {
+        Long orderId = 1L;
+        Long customerId = 123L;
+        Long wrongCustomerId = 456L;
+
+        Order order = new Order();
+        order.setId(orderId);
+        order.setCustomerId(wrongCustomerId);
+        order.setStatus(OrderStatus.PENDING);
+
+        when(orderPersistencePort.findById(orderId)).thenReturn(Optional.of(order));
+
+        DomainException exception = assertThrows(DomainException.class, () -> orderUseCase.cancelOrder(orderId, customerId));
+        assertEquals("El pedido no pertenece al usuario autenticado", exception.getMessage());
+        verify(orderPersistencePort, never()).save(any(Order.class));
+    }
 }

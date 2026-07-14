@@ -62,4 +62,29 @@ class OrderTest {
         
         assertEquals("El pedido debe estar en preparación para poder ser marcado como listo", exception.getMessage());
     }
+
+    @Test
+    void markAsCancelled_WithPendingStatus_ShouldChangeStatusToCancelled() {
+        // Arrange
+        Order order = new Order();
+        order.setStatus(OrderStatus.PENDING);
+
+        // Act
+        order.markAsCancelled();
+
+        // Assert
+        assertEquals(OrderStatus.CANCELLED, order.getStatus());
+    }
+
+    @Test
+    void markAsCancelled_WithNonPendingStatus_ShouldThrowDomainException() {
+        // Arrange
+        Order order = new Order();
+        order.setStatus(OrderStatus.IN_PREPARATION);
+
+        // Act & Assert
+        DomainException exception = assertThrows(DomainException.class, order::markAsCancelled);
+        
+        assertEquals("Lo sentimos, tu pedido no puede ser cancelado", exception.getMessage());
+    }
 }

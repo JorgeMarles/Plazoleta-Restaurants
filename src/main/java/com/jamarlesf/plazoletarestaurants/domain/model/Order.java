@@ -45,4 +45,11 @@ public class Order {
         }
         setStatus(OrderStatus.DELIVERED);
     }
+
+    public void markAsCancelled() {
+        if (this.status != OrderStatus.PENDING) {
+            throw new DomainException("Lo sentimos, tu pedido no puede ser cancelado");
+        }
+        setStatus(OrderStatus.CANCELLED);
+    }
 }

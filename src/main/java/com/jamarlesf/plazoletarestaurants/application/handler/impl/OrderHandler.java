@@ -84,4 +84,9 @@ public class OrderHandler implements IOrderHandler {
     public void markAsDelivered(Long orderId, String pin) {
         orderServicePort.markAsDelivered(orderId, pin);
     }
+
+    @Override
+    public void cancelOrder(Long orderId, Long customerId) {
+        orderServicePort.cancelOrder(orderId, customerId);
+    }
 }

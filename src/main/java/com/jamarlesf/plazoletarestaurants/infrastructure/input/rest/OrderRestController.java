@@ -78,4 +78,17 @@ public class OrderRestController {
         orderHandler.markAsDelivered(id, orderPinRequestDto.getPin());
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    @Operation(summary = "Cancel order", description = "Allows a customer to cancel their order if it is in PENDING state")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Order cancelled successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid order state or order does not belong to the user")
+    })
+    @PatchMapping("/{id}/cancel")
+    @PreAuthorize("hasAuthority('CLIENTE')")
+    public ResponseEntity<Void> cancelOrder(@PathVariable Long id) {
+        Long customerId = SecurityContextUtils.getAuthenticatedUserId();
+        orderHandler.cancelOrder(id, customerId);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }

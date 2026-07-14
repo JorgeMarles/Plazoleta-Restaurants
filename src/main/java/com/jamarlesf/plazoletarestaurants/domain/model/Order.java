@@ -21,6 +21,7 @@ public class Order {
     private Long chefId;
     private Long restaurantId;
     private List<OrderDish> dishes;
+    private String pinHash;
 
     public void assignChefAndSetInPreparation(Long chefId) {
         if (this.status != OrderStatus.PENDING) {
@@ -28,5 +29,13 @@ public class Order {
         }
         setChefId(chefId);
         setStatus(OrderStatus.IN_PREPARATION);
+    }
+
+    public void markAsReady(String pinHash) {
+        if (this.status != OrderStatus.IN_PREPARATION) {
+            throw new DomainException("El pedido debe estar en preparación para poder ser marcado como listo");
+        }
+        setStatus(OrderStatus.READY);
+        setPinHash(pinHash);
     }
 }

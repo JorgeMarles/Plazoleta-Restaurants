@@ -30,10 +30,36 @@ class OrderTest {
         Long chefId = 5L;
 
         // Act & Assert
-        DomainException exception = assertThrows(DomainException.class, () -> {
-            order.assignChefAndSetInPreparation(chefId);
-        });
+        DomainException exception = assertThrows(DomainException.class, () -> order.assignChefAndSetInPreparation(chefId));
         
         assertEquals("El pedido debe estar en estado pendiente para poder ser asignado", exception.getMessage());
+    }
+
+    @Test
+    void markAsReady_WithInPreparationStatus_ShouldChangeStatusAndSetPinHash() {
+        // Arrange
+        Order order = new Order();
+        order.setStatus(OrderStatus.IN_PREPARATION);
+        String pinHash = "hashed_pin_123";
+
+        // Act
+        order.markAsReady(pinHash);
+
+        // Assert
+        assertEquals(OrderStatus.READY, order.getStatus());
+        assertEquals(pinHash, order.getPinHash());
+    }
+
+    @Test
+    void markAsReady_WithNonInPreparationStatus_ShouldThrowDomainException() {
+        // Arrange
+        Order order = new Order();
+        order.setStatus(OrderStatus.PENDING);
+        String pinHash = "hashed_pin_123";
+
+        // Act & Assert
+        DomainException exception = assertThrows(DomainException.class, () -> order.markAsReady(pinHash));
+        
+        assertEquals("El pedido debe estar en preparación para poder ser marcado como listo", exception.getMessage());
     }
 }

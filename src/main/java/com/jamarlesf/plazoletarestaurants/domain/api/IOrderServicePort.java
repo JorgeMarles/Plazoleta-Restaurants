@@ -9,4 +9,5 @@ public interface IOrderServicePort {
     void save(Order order);
     PageModel<Order> findByRestaurantIdAndStatus(Long restaurantId, OrderStatus status, PaginationCriteria paginationCriteria);
     void assignOrder(Long orderId, Long employeeId);
+    void markAsReady(Long orderId);
 }

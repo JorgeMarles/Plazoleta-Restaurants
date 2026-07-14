@@ -38,4 +38,11 @@ public class Order {
         setStatus(OrderStatus.READY);
         setPinHash(pinHash);
     }
+
+    public void markAsDelivered() {
+        if (this.status != OrderStatus.READY) {
+            throw new DomainException("El pedido debe estar en estado listo para poder ser entregado");
+        }
+        setStatus(OrderStatus.DELIVERED);
+    }
 }

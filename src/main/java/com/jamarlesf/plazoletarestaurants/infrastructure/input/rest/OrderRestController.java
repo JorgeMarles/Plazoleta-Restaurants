@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
+import com.jamarlesf.plazoletarestaurants.application.dto.request.OrderPinRequestDto;
 
 @RestController
 @RequestMapping("/api/v1/orders/")
@@ -60,6 +62,20 @@ public class OrderRestController {
     @PreAuthorize("hasAuthority('EMPLEADO')")
     public ResponseEntity<Void> markAsReady(@PathVariable Long id) {
         orderHandler.markAsReady(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @Operation(summary = "Mark order as delivered", description = "Marks an order as delivered validating the correct pin")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Order delivered successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid pin or order state")
+    })
+    @PatchMapping("/{id}/delivered")
+    @PreAuthorize("hasAuthority('EMPLEADO')")
+    public ResponseEntity<Void> markAsDelivered(
+            @PathVariable Long id, 
+            @Valid @RequestBody OrderPinRequestDto orderPinRequestDto) {
+        orderHandler.markAsDelivered(id, orderPinRequestDto.getPin());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

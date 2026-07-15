@@ -20,4 +20,12 @@ public class SecurityContextUtils {
         }
         throw new IllegalStateException("No se pudo obtener el ID del usuario autenticado");
     }
+
+    public static String getAuthenticatedUserEmail() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof String email) {
+            return email;
+        }
+        throw new IllegalStateException("No se pudo obtener el email del usuario autenticado");
+    }
 }

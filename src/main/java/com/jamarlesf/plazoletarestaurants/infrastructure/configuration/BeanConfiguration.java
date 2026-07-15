@@ -38,6 +38,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.jamarlesf.plazoletarestaurants.domain.spi.ITraceabilityExternalPort;
+import com.jamarlesf.plazoletarestaurants.infrastructure.out.rest.adapter.TraceabilityExternalAdapter;
+import com.jamarlesf.plazoletarestaurants.infrastructure.out.rest.client.ITraceabilityFeignClient;
+
 @Configuration
 @RequiredArgsConstructor
 public class BeanConfiguration {
@@ -53,6 +57,8 @@ public class BeanConfiguration {
     private final ICategoryEntityMapper categoryEntityMapper;
     private final IOrderRepository orderRepository;
     private final IOrderEntityMapper orderEntityMapper;
+
+    private final ITraceabilityFeignClient traceabilityFeignClient;
 
     @Bean
     public IRestaurantPersistencePort restaurantPersistencePort() {
@@ -109,8 +115,14 @@ public class BeanConfiguration {
         return new NumericPinGeneratorAdapter();
     }
 
+
+    @Bean
+    public ITraceabilityExternalPort traceabilityLogPort() {
+        return new TraceabilityExternalAdapter(traceabilityFeignClient);
+    }
+
     @Bean
     public IOrderServicePort orderServicePort() {
-        return new OrderUseCase(orderPersistencePort(), userExternalPort(), dishPersistencePort(), orderNotificationPort(), pinEncoderPort(passwordEncoder()), pinGeneratorPort());
+        return new OrderUseCase(orderPersistencePort(), userExternalPort(), dishPersistencePort(), orderNotificationPort(), pinEncoderPort(passwordEncoder()), pinGeneratorPort(), traceabilityLogPort());
     }
 }

@@ -12,6 +12,7 @@ import com.jamarlesf.plazoletarestaurants.domain.spi.IOrderPersistencePort;
 import com.jamarlesf.plazoletarestaurants.domain.spi.IPinEncoderPort;
 import com.jamarlesf.plazoletarestaurants.domain.spi.IPinGeneratorPort;
 import com.jamarlesf.plazoletarestaurants.domain.spi.IUserExternalPort;
+import com.jamarlesf.plazoletarestaurants.domain.spi.ITraceabilityExternalPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -48,6 +49,10 @@ class OrderUseCaseTest {
 
     @Mock
     private IPinGeneratorPort pinGeneratorPort;
+
+    @Mock
+    private ITraceabilityExternalPort traceabilityLogPort;
+
 
     @InjectMocks
     private OrderUseCase orderUseCase;
@@ -86,7 +91,7 @@ class OrderUseCaseTest {
         when(dishPersistencePort.findById(1L)).thenReturn(Optional.of(dish1));
         when(dishPersistencePort.findById(2L)).thenReturn(Optional.of(dish2));
 
-        assertDoesNotThrow(() -> orderUseCase.save(orderRequest));
+        assertDoesNotThrow(() -> orderUseCase.save(orderRequest, "client@gmail.com"));
 
         verify(userExternalPort).isCustomer(anyLong());
         verify(orderPersistencePort).hasActiveOrders(123L, OrderStatus.getInProcessStatuses());
@@ -105,7 +110,7 @@ class OrderUseCaseTest {
     void shouldThrowExceptionWhenUserIsNotClient() {
         when(userExternalPort.isCustomer(123L)).thenReturn(false);
 
-        assertThrows(DomainException.class, () -> orderUseCase.save(orderRequest));
+        assertThrows(DomainException.class, () -> orderUseCase.save(orderRequest, "client@gmail.com"));
 
         verify(userExternalPort).isCustomer(anyLong());
         verify(orderPersistencePort, never()).hasActiveOrders(anyLong(), anyList());
@@ -119,7 +124,7 @@ class OrderUseCaseTest {
         when(userExternalPort.isCustomer(123L)).thenReturn(true);
         when(orderPersistencePort.hasActiveOrders(123L, OrderStatus.getInProcessStatuses())).thenReturn(true);
 
-        assertThrows(DomainException.class, () -> orderUseCase.save(orderRequest));
+        assertThrows(DomainException.class, () -> orderUseCase.save(orderRequest, "client@gmail.com"));
 
         verify(userExternalPort).isCustomer(anyLong());
         verify(orderPersistencePort).hasActiveOrders(123L, OrderStatus.getInProcessStatuses());
@@ -136,7 +141,7 @@ class OrderUseCaseTest {
         OrderDish invalidDish = new OrderDish(3L, 0); // Amount 0
         orderRequest.setDishes(Collections.singletonList(invalidDish));
 
-        assertThrows(DomainException.class, () -> orderUseCase.save(orderRequest));
+        assertThrows(DomainException.class, () -> orderUseCase.save(orderRequest, "client@gmail.com"));
 
         verify(userExternalPort).isCustomer(anyLong());
         verify(orderPersistencePort).hasActiveOrders(123L, OrderStatus.getInProcessStatuses());
@@ -163,7 +168,7 @@ class OrderUseCaseTest {
         when(dishPersistencePort.findById(1L)).thenReturn(Optional.of(dish1));
         when(dishPersistencePort.findById(2L)).thenReturn(Optional.of(dish2));
 
-        assertThrows(DomainException.class, () -> orderUseCase.save(orderRequest));
+        assertThrows(DomainException.class, () -> orderUseCase.save(orderRequest, "client@gmail.com"));
 
         verify(userExternalPort).isCustomer(anyLong());
         verify(orderPersistencePort).hasActiveOrders(123L, OrderStatus.getInProcessStatuses());
@@ -179,7 +184,7 @@ class OrderUseCaseTest {
 
         orderRequest.setDishes(Collections.emptyList());
 
-        assertThrows(DomainException.class, () -> orderUseCase.save(orderRequest));
+        assertThrows(DomainException.class, () -> orderUseCase.save(orderRequest, "client@gmail.com"));
 
         verify(userExternalPort).isCustomer(anyLong());
         verify(orderPersistencePort).hasActiveOrders(anyLong(), anyList());
@@ -201,7 +206,7 @@ class OrderUseCaseTest {
         OrderDish duplicateDish2 = new OrderDish(1L, 3);
         orderRequest.setDishes(Arrays.asList(duplicateDish1, duplicateDish2));
 
-        DomainException e = assertThrows(DomainException.class, () -> orderUseCase.save(orderRequest));
+        DomainException e = assertThrows(DomainException.class, () -> orderUseCase.save(orderRequest, "client@gmail.com"));
         System.out.println(e.getMessage());
 
         verify(userExternalPort).isCustomer(anyLong());

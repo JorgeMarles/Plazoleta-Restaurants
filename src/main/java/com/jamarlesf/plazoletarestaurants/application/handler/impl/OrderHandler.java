@@ -33,10 +33,10 @@ public class OrderHandler implements IOrderHandler {
     private final IDishResponseMapper dishResponseMapper;
 
     @Override
-    public void saveOrder(OrderRequestDto orderRequestDto, Long customerId) {
+    public void saveOrder(OrderRequestDto orderRequestDto, Long customerId, String userEmail) {
         Order order = orderRequestMapper.toOrder(orderRequestDto);
         order.setCustomerId(customerId);
-        orderServicePort.save(order);
+        orderServicePort.save(order, userEmail);
     }
 
     @Override
@@ -71,8 +71,8 @@ public class OrderHandler implements IOrderHandler {
     }
 
     @Override
-    public void assignOrder(Long orderId, Long employeeId) {
-        orderServicePort.assignOrder(orderId, employeeId);
+    public void assignOrder(Long orderId, Long employeeId, String employeeEmail) {
+        orderServicePort.assignOrder(orderId, employeeId, employeeEmail);
     }
 
     @Override

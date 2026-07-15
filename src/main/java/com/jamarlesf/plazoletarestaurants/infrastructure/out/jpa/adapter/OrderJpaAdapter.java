@@ -40,7 +40,8 @@ public class OrderJpaAdapter implements IOrderPersistencePort {
             if (newEntity.getDishes() != null) {
                 newEntity.getDishes().forEach(dish -> dish.setOrder(newEntity));
             }
-            orderRepository.save(newEntity);
+            OrderEntity savedEntity = orderRepository.save(newEntity);
+            order.setId(savedEntity.getId());
         }
     }
 

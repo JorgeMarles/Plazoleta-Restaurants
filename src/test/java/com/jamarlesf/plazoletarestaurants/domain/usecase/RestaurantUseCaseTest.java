@@ -16,6 +16,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import com.jamarlesf.plazoletarestaurants.domain.model.PaginationCriteria;
+import com.jamarlesf.plazoletarestaurants.domain.model.RestaurantSortCriteria;
+import com.jamarlesf.plazoletarestaurants.domain.model.PageModel;
 
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -172,13 +175,13 @@ class RestaurantUseCaseTest {
 
     @Test
     void getRestaurantsPaginatedAndSorted_ShouldReturnPageModel() {
-        com.jamarlesf.plazoletarestaurants.domain.model.PaginationCriteria pagination = new com.jamarlesf.plazoletarestaurants.domain.model.PaginationCriteria(0, 10);
-        com.jamarlesf.plazoletarestaurants.domain.model.RestaurantSortCriteria sort = new com.jamarlesf.plazoletarestaurants.domain.model.RestaurantSortCriteria("name");
-        com.jamarlesf.plazoletarestaurants.domain.model.PageModel<Restaurant> expectedPage = new com.jamarlesf.plazoletarestaurants.domain.model.PageModel<>(List.of(restaurant), 0, 10, 1, 1, true, true);
+        PaginationCriteria pagination = new PaginationCriteria(0, 10);
+        RestaurantSortCriteria sort = new RestaurantSortCriteria("name");
+        PageModel<Restaurant> expectedPage = new PageModel<>(List.of(restaurant), 0, 10, 1, 1, true, true);
 
         when(restaurantPersistencePort.findAllPaginated(pagination, sort)).thenReturn(expectedPage);
 
-        com.jamarlesf.plazoletarestaurants.domain.model.PageModel<Restaurant> actualPage = restaurantUseCase.getRestaurantsPaginatedAndSorted(pagination, sort);
+        PageModel<Restaurant> actualPage = restaurantUseCase.getRestaurantsPaginatedAndSorted(pagination, sort);
 
         assertSame(expectedPage, actualPage);
         verify(restaurantPersistencePort, times(1)).findAllPaginated(pagination, sort);

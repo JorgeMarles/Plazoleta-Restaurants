@@ -7,6 +7,7 @@ import com.jamarlesf.plazoletarestaurants.infrastructure.out.jpa.entity.OrderEnt
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
+import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring",
         unmappedTargetPolicy = ReportingPolicy.IGNORE,
@@ -22,5 +23,5 @@ public interface IOrderEntityMapper {
     OrderDish toOrderDish(OrderDishEntity orderDishEntity);
 
     @Mapping(target = "dishes", ignore = true)
-    void updateOrderEntityFromOrder(Order order, @org.mapstruct.MappingTarget OrderEntity orderEntity);
+    void updateOrderEntityFromOrder(Order order, @MappingTarget OrderEntity orderEntity);
 }

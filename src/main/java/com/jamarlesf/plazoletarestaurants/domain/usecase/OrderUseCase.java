@@ -13,7 +13,6 @@ import com.jamarlesf.plazoletarestaurants.domain.spi.IPinEncoderPort;
 import com.jamarlesf.plazoletarestaurants.domain.spi.IPinGeneratorPort;
 import com.jamarlesf.plazoletarestaurants.domain.spi.IUserExternalPort;
 import com.jamarlesf.plazoletarestaurants.domain.spi.ITraceabilityExternalPort;
-import com.jamarlesf.plazoletarestaurants.domain.spi.IUserContextPort;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -30,9 +29,8 @@ public class OrderUseCase implements IOrderServicePort {
     private final IPinEncoderPort pinEncoderPort;
     private final IPinGeneratorPort pinGeneratorPort;
     private final ITraceabilityExternalPort traceabilityLogPort;
-    private final IUserContextPort userContextPort;
 
-    public OrderUseCase(IOrderPersistencePort orderPersistencePort, IUserExternalPort userExternalPort, IDishPersistencePort dishPersistencePort, IOrderNotificationPort orderNotificationPort, IPinEncoderPort pinEncoderPort, IPinGeneratorPort pinGeneratorPort, ITraceabilityExternalPort traceabilityLogPort, IUserContextPort userContextPort) {
+    public OrderUseCase(IOrderPersistencePort orderPersistencePort, IUserExternalPort userExternalPort, IDishPersistencePort dishPersistencePort, IOrderNotificationPort orderNotificationPort, IPinEncoderPort pinEncoderPort, IPinGeneratorPort pinGeneratorPort, ITraceabilityExternalPort traceabilityLogPort) {
         this.orderPersistencePort = orderPersistencePort;
         this.userExternalPort = userExternalPort;
         this.dishPersistencePort = dishPersistencePort;
@@ -40,7 +38,6 @@ public class OrderUseCase implements IOrderServicePort {
         this.pinEncoderPort = pinEncoderPort;
         this.pinGeneratorPort = pinGeneratorPort;
         this.traceabilityLogPort = traceabilityLogPort;
-        this.userContextPort = userContextPort;
     }
 
     private void validateOrder(Order order) {
@@ -92,7 +89,7 @@ public class OrderUseCase implements IOrderServicePort {
     }
 
     @Override
-    public void save(Order order) {
+    public void save(Order order, String userEmail) {
         validateOrder(order);
         
         Long restaurantId = validateAndGetRestaurantId(order.getDishes());
@@ -103,7 +100,7 @@ public class OrderUseCase implements IOrderServicePort {
         
         orderPersistencePort.save(order);
         
-        traceabilityLogPort.logPendingOrder(order.getId(), order.getCustomerId(), userContextPort.getAuthenticatedUserEmail());
+        traceabilityLogPort.logPendingOrder(order.getId(), order.getCustomerId(), userEmail);
     }
 
     @Override
@@ -112,7 +109,7 @@ public class OrderUseCase implements IOrderServicePort {
     }
 
     @Override
-    public void assignOrder(Long orderId, Long employeeId) {
+    public void assignOrder(Long orderId, Long employeeId, String employeeEmail) {
         if (!userExternalPort.isEmployee(employeeId)) {
             throw new DomainException("El usuario no es un empleado");
         }
@@ -120,7 +117,7 @@ public class OrderUseCase implements IOrderServicePort {
         order.assignChefAndSetInPreparation(employeeId);
         orderPersistencePort.save(order);
         
-        traceabilityLogPort.logInPreparationOrder(order.getId(), employeeId, userContextPort.getAuthenticatedUserEmail());
+        traceabilityLogPort.logInPreparationOrder(order.getId(), employeeId, employeeEmail);
     }
 
     private Order getOrderById(Long orderId) {

@@ -36,7 +36,7 @@ public class OrderRestController {
     @PostMapping()
     @PreAuthorize("hasAuthority('CLIENTE')")
     public ResponseEntity<Void> createOrder(@RequestBody OrderRequestDto orderRequestDto) {
-        orderHandler.saveOrder(orderRequestDto, SecurityContextUtils.getAuthenticatedUserId());
+        orderHandler.saveOrder(orderRequestDto, SecurityContextUtils.getAuthenticatedUserId(), SecurityContextUtils.getAuthenticatedUserEmail());
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
@@ -49,7 +49,8 @@ public class OrderRestController {
     @PreAuthorize("hasAuthority('EMPLEADO')")
     public ResponseEntity<Void> assignOrder(@PathVariable Long id) {
         Long employeeId = SecurityContextUtils.getAuthenticatedUserId();
-        orderHandler.assignOrder(id, employeeId);
+        String employeeEmail = SecurityContextUtils.getAuthenticatedUserEmail();
+        orderHandler.assignOrder(id, employeeId, employeeEmail);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

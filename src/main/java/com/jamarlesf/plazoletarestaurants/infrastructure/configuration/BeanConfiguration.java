@@ -39,10 +39,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.jamarlesf.plazoletarestaurants.domain.spi.ITraceabilityExternalPort;
-import com.jamarlesf.plazoletarestaurants.domain.spi.IUserContextPort;
 import com.jamarlesf.plazoletarestaurants.infrastructure.out.rest.adapter.TraceabilityExternalAdapter;
 import com.jamarlesf.plazoletarestaurants.infrastructure.out.rest.client.ITraceabilityFeignClient;
-import com.jamarlesf.plazoletarestaurants.infrastructure.security.adapter.UserContextAdapter;
 
 @Configuration
 @RequiredArgsConstructor
@@ -117,10 +115,6 @@ public class BeanConfiguration {
         return new NumericPinGeneratorAdapter();
     }
 
-    @Bean
-    public IUserContextPort userContextPort() {
-        return new UserContextAdapter();
-    }
 
     @Bean
     public ITraceabilityExternalPort traceabilityLogPort() {
@@ -129,6 +123,6 @@ public class BeanConfiguration {
 
     @Bean
     public IOrderServicePort orderServicePort() {
-        return new OrderUseCase(orderPersistencePort(), userExternalPort(), dishPersistencePort(), orderNotificationPort(), pinEncoderPort(passwordEncoder()), pinGeneratorPort(), traceabilityLogPort(), userContextPort());
+        return new OrderUseCase(orderPersistencePort(), userExternalPort(), dishPersistencePort(), orderNotificationPort(), pinEncoderPort(passwordEncoder()), pinGeneratorPort(), traceabilityLogPort());
     }
 }

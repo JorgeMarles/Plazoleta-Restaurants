@@ -12,6 +12,8 @@ import com.jamarlesf.plazoletarestaurants.domain.spi.IOrderPersistencePort;
 import com.jamarlesf.plazoletarestaurants.domain.spi.IPinEncoderPort;
 import com.jamarlesf.plazoletarestaurants.domain.spi.IPinGeneratorPort;
 import com.jamarlesf.plazoletarestaurants.domain.spi.IUserExternalPort;
+import com.jamarlesf.plazoletarestaurants.domain.spi.ITraceabilityExternalPort;
+import com.jamarlesf.plazoletarestaurants.domain.spi.IUserContextPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -48,6 +50,12 @@ class OrderUseCaseTest {
 
     @Mock
     private IPinGeneratorPort pinGeneratorPort;
+
+    @Mock
+    private ITraceabilityExternalPort traceabilityLogPort;
+
+    @Mock
+    private IUserContextPort userContextPort;
 
     @InjectMocks
     private OrderUseCase orderUseCase;

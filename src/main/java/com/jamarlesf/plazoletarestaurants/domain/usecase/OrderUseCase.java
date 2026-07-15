@@ -12,6 +12,8 @@ import com.jamarlesf.plazoletarestaurants.domain.spi.IOrderPersistencePort;
 import com.jamarlesf.plazoletarestaurants.domain.spi.IPinEncoderPort;
 import com.jamarlesf.plazoletarestaurants.domain.spi.IPinGeneratorPort;
 import com.jamarlesf.plazoletarestaurants.domain.spi.IUserExternalPort;
+import com.jamarlesf.plazoletarestaurants.domain.spi.ITraceabilityExternalPort;
+import com.jamarlesf.plazoletarestaurants.domain.spi.IUserContextPort;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -19,9 +21,6 @@ import java.util.List;
 import java.util.Set;
 import com.jamarlesf.plazoletarestaurants.domain.model.PageModel;
 import com.jamarlesf.plazoletarestaurants.domain.model.PaginationCriteria;
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
 public class OrderUseCase implements IOrderServicePort {
 
     private final IOrderPersistencePort orderPersistencePort;
@@ -30,14 +29,18 @@ public class OrderUseCase implements IOrderServicePort {
     private final IOrderNotificationPort orderNotificationPort;
     private final IPinEncoderPort pinEncoderPort;
     private final IPinGeneratorPort pinGeneratorPort;
+    private final ITraceabilityExternalPort traceabilityLogPort;
+    private final IUserContextPort userContextPort;
 
-    public OrderUseCase(IOrderPersistencePort orderPersistencePort, IUserExternalPort userExternalPort, IDishPersistencePort dishPersistencePort, IOrderNotificationPort orderNotificationPort, IPinEncoderPort pinEncoderPort, IPinGeneratorPort pinGeneratorPort) {
+    public OrderUseCase(IOrderPersistencePort orderPersistencePort, IUserExternalPort userExternalPort, IDishPersistencePort dishPersistencePort, IOrderNotificationPort orderNotificationPort, IPinEncoderPort pinEncoderPort, IPinGeneratorPort pinGeneratorPort, ITraceabilityExternalPort traceabilityLogPort, IUserContextPort userContextPort) {
         this.orderPersistencePort = orderPersistencePort;
         this.userExternalPort = userExternalPort;
         this.dishPersistencePort = dishPersistencePort;
         this.orderNotificationPort = orderNotificationPort;
         this.pinEncoderPort = pinEncoderPort;
         this.pinGeneratorPort = pinGeneratorPort;
+        this.traceabilityLogPort = traceabilityLogPort;
+        this.userContextPort = userContextPort;
     }
 
     private void validateOrder(Order order) {
@@ -99,6 +102,8 @@ public class OrderUseCase implements IOrderServicePort {
         order.setRestaurantId(restaurantId);
         
         orderPersistencePort.save(order);
+        
+        traceabilityLogPort.logPendingOrder(order.getId(), order.getCustomerId(), userContextPort.getAuthenticatedUserEmail());
     }
 
     @Override
@@ -112,9 +117,10 @@ public class OrderUseCase implements IOrderServicePort {
             throw new DomainException("El usuario no es un empleado");
         }
         Order order = getOrderById(orderId);
-        log.info("id {}", order.getId());
         order.assignChefAndSetInPreparation(employeeId);
         orderPersistencePort.save(order);
+        
+        traceabilityLogPort.logInPreparationOrder(order.getId(), employeeId, userContextPort.getAuthenticatedUserEmail());
     }
 
     private Order getOrderById(Long orderId) {
@@ -133,6 +139,8 @@ public class OrderUseCase implements IOrderServicePort {
 
         String phone = userExternalPort.getCustomerPhone(order.getCustomerId());
         orderNotificationPort.notifyOrderReady(phone, pin);
+        
+        traceabilityLogPort.logReadyOrder(order.getId());
     }
 
     @Override
@@ -145,6 +153,8 @@ public class OrderUseCase implements IOrderServicePort {
 
         order.markAsDelivered();
         orderPersistencePort.save(order);
+        
+        traceabilityLogPort.logDeliveredOrder(order.getId());
     }
 
     @Override
@@ -157,5 +167,7 @@ public class OrderUseCase implements IOrderServicePort {
         
         order.markAsCancelled();
         orderPersistencePort.save(order);
+        
+        traceabilityLogPort.logCancelledOrder(order.getId());
     }
 }

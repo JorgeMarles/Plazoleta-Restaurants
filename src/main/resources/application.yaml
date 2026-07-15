@@ -5,7 +5,7 @@ spring:
     import: optional:file:.env[.properties]
 
   datasource:
-    url: jdbc:mysql://localhost:3306/plazoleta_restaurants?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/plazoleta_restaurants?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true}
     username: root
     password: ${DB_PASSWORD:root}
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -42,8 +42,8 @@ appVersion: "1.0.0"
 
 services:
   users:
-    url: http://localhost:8080
+    url: ${SERVICES_USERS_URL:http://localhost:8080}
   notifications:
-    url: http://localhost:8082
+    url: ${SERVICES_NOTIFICATIONS_URL:http://localhost:8082}
   traceability:
-    url: http://localhost:8083
+    url: ${SERVICES_TRACEABILITY_URL:http://localhost:8083}

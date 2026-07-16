@@ -4,6 +4,9 @@ spring:
   config:
     import: optional:file:.env[.properties]
 
+  sql:
+    init:
+      mode: always
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/plazoleta_restaurants?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true}
     username: root
@@ -11,6 +14,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
+    defer-datasource-initialization: true
     hibernate:
       ddl-auto: update
     show-sql: true
